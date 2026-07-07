@@ -20,7 +20,8 @@ export class GeminiProvider implements AIProvider {
       return "**Setup Required**: The AI Assistant requires a `GEMINI_API_KEY` environment variable. Please generate an API key from Google AI Studio and add it to your environment variables to enable this feature.";
     }
 
-    const model = this.ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // Fallback to gemini-1.5-flash-latest or gemini-pro if the standard name throws 404 in some regions
+    const model = this.ai.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
     
     // RAG approach: fetch DB stats to provide context so it doesn't hallucinate
     const [totalStudents, totalCourses, allocatedCount, unallocatedCount] = await Promise.all([
