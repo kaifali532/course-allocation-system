@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Download, FileText, FileSpreadsheet } from 'lucide-react';
 import { api } from '../services/api';
+import toast from 'react-hot-toast';
 
 export default function Reports() {
   const [loading, setLoading] = useState(false);
@@ -29,7 +30,7 @@ export default function Reports() {
       document.body.removeChild(link);
     } catch (error) {
       console.error(error);
-      alert('Failed to generate report');
+      toast.error('Failed to generate report');
     } finally {
       setLoading(false);
     }

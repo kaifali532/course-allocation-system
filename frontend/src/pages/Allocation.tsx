@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api } from '../services/api';
 import { Network, Play, RotateCcw, AlertTriangle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function Allocation() {
   const [loading, setLoading] = useState(false);
@@ -11,10 +12,10 @@ export default function Allocation() {
     setLoading(true);
     try {
       const res = await api.post('/allocations/run');
-      setResult(res.data);
-    } catch (error) {
+      toast.success('Allocation engine ran successfully.');
+    } catch (error: any) {
       console.error(error);
-      alert('Error running allocation');
+      toast.error(error.response?.data?.message || 'Error running allocation');
     } finally {
       setLoading(false);
     }
@@ -25,10 +26,10 @@ export default function Allocation() {
     setLoading(true);
     try {
       await api.post('/allocations/reset');
-      setResult({ success: true, message: 'Allocations reset successfully.' });
-    } catch (error) {
+      toast.success('Allocations reset successfully.');
+    } catch (error: any) {
       console.error(error);
-      alert('Error resetting allocation');
+      toast.error(error.response?.data?.message || 'Error resetting allocation');
     } finally {
       setLoading(false);
     }
