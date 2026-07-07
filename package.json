@@ -2,14 +2,19 @@
   "name": "course-allocation-system",
   "version": "1.0.0",
   "description": "AI Powered Student Course Allocation System",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run dev --workspace=backend",
     "dev": "npx concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "build:frontend": "cd frontend && npm run build",
-    "build:backend": "cd backend && npx tsc",
+    "build:frontend": "npm run build --workspace=frontend",
+    "build:backend": "npm run build --workspace=backend",
     "build": "npm run build:frontend && npm run build:backend",
-    "start:backend": "cd backend && node dist/index.js",
+    "start:backend": "npm run start --workspace=backend",
     "start": "npm run start:backend"
   },
   "dependencies": {

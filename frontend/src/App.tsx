@@ -22,9 +22,10 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="students" element={<Students />} />
             <Route path="courses" element={<Courses />} />
-            <Route path="allocation" element={<Allocation />} />
+            <Route path="allocations" element={<Allocation />} />
             <Route path="assistant" element={<Assistant />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Routes>
       </Router>
