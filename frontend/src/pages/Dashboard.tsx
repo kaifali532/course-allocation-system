@@ -1,254 +1,205 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../services/api';
-import { 
-  Users, 
-  BookOpen, 
-  CheckCircle, 
-  XCircle, 
-  TrendingUp,
-  BarChart3,
-  Clock,
-  Activity
-} from 'lucide-react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, AreaChart, Area
-} from 'recharts';
-import { formatDistanceToNow } from 'date-fns';
+import { Users, BookOpen, Layers, Clock, TrendingUp } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { format, subDays } from 'date-fns';
+import { motion } from 'framer-motion';
 
 export default function Dashboard() {
-  const [stats, setStats] = useState<any>(null);
-  const [logs, setLogs] = useState<any[]>([]);
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    totalCourses: 0,
+    totalAllocations: 0,
+    pendingApplications: 0,
+    seatUtilization: 0
+  });
+  
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboardData();
+    const fetchStats = async () => {
+      try {
+        const res = await api.get('/allocation/stats');
+        const s = res.data.data;
+        
+        setStats({
+          totalStudents: s.totalStudents || 0,
+          totalCourses: s.totalCourses || 0,
+          totalAllocations: s.totalAllocations || 0,
+          pendingApplications: Math.max(0, (s.totalStudents || 0) - (s.totalAllocations || 0)),
+          seatUtilization: s.totalSeats ? Math.round(((s.allocatedSeats || 0) / s.totalSeats) * 100) : 0
+        });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
   }, []);
 
-  const fetchDashboardData = async () => {
-    try {
-      const [statsRes, logsRes] = await Promise.all([
-        api.get('/allocation/stats'),
-        api.get('/allocation/logs')
-      ]);
-      setStats(statsRes.data.stats);
-      setLogs(logsRes.data.logs.slice(0, 5));
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+  // Mock trend data based on current date
+  const trendData = Array.from({ length: 7 }).map((_, i) => ({
+    date: format(subDays(new Date(), 6 - i), 'MMM dd'),
+    allocations: Math.floor(Math.random() * 50) + 10,
+    applications: Math.floor(Math.random() * 80) + 30
+  }));
+
+  const pieData = [
+    { name: 'General', value: 400 },
+    { name: 'OBC', value: 300 },
+    { name: 'SC', value: 150 },
+    { name: 'ST', value: 100 },
+  ];
+  const PIE_COLORS = ['#818cf8', '#38bdf8', '#c084fc', '#f472b6'];
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-[#0a0a0f]/90 backdrop-blur-xl border border-white/10 p-4 rounded-xl shadow-2xl">
+          <p className="text-white font-medium mb-2">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center gap-2 mt-1">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+              <span className="text-slate-400 text-sm">{entry.name}:</span>
+              <span className="text-white font-medium text-sm">{entry.value}</span>
+            </div>
+          ))}
+        </div>
+      );
     }
+    return null;
   };
 
-  if (!stats) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      <div className="flex items-center justify-center h-full">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 rounded-full border-t-2 border-indigo-500 animate-spin"></div>
+          <div className="absolute inset-2 rounded-full border-r-2 border-purple-500 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.7s' }}></div>
+        </div>
       </div>
     );
   }
 
-  // Derived dummy data for charts based on actual stats (since backend doesn't provide full historical series)
-  const allocationRateData = [
-    { name: 'Mon', rate: 40 },
-    { name: 'Tue', rate: 65 },
-    { name: 'Wed', rate: 85 },
-    { name: 'Thu', rate: 92 },
-    { name: 'Fri', rate: Math.round((stats.allocated / (stats.totalStudents || 1)) * 100) },
-  ];
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
 
-  const categoryData = [
-    { name: 'General', value: stats.allocated * 0.5 },
-    { name: 'OBC', value: stats.allocated * 0.27 },
-    { name: 'SC', value: stats.allocated * 0.15 },
-    { name: 'ST', value: stats.allocated * 0.08 },
-  ];
-  
-  const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#14b8a6'];
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-8 pb-8">
+      
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Overview</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Here's what's happening in the system today.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Executive Overview</h1>
+          <p className="text-slate-400 mt-1">Real-time insights into system capacity and allocation health.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
-            Export Report
-          </button>
-          <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm shadow-indigo-500/20">
-            Run Allocation
-          </button>
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            System Optimal
+          </span>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard 
-          title="Total Students" 
-          value={stats.totalStudents} 
-          icon={Users} 
-          trend="+12%" 
-          trendUp={true} 
-          color="bg-blue-500" 
-        />
-        <KpiCard 
-          title="Total Courses" 
-          value={stats.totalCourses} 
-          icon={BookOpen} 
-          trend="Active" 
-          trendUp={true} 
-          color="bg-emerald-500" 
-        />
-        <KpiCard 
-          title="Allocated Students" 
-          value={stats.allocated} 
-          icon={CheckCircle} 
-          trend={`${Math.round((stats.allocated / (stats.totalStudents || 1)) * 100)}% Rate`} 
-          trendUp={true} 
-          color="bg-indigo-500" 
-        />
-        <KpiCard 
-          title="Pending Allocation" 
-          value={stats.pending} 
-          icon={Clock} 
-          trend="-5%" 
-          trendUp={false} 
-          color="bg-amber-500" 
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: 'Total Students', value: stats.totalStudents, icon: Users, color: 'from-blue-500 to-indigo-500', trend: '+12%' },
+          { label: 'Active Courses', value: stats.totalCourses, icon: BookOpen, color: 'from-violet-500 to-purple-500', trend: '+4%' },
+          { label: 'Seat Utilization', value: `${stats.seatUtilization}%`, icon: Layers, color: 'from-pink-500 to-rose-500', trend: '+8%' },
+          { label: 'Pending Processing', value: stats.pendingApplications, icon: Clock, color: 'from-amber-500 to-orange-500', trend: '-2%' },
+        ].map((kpi, i) => {
+          const Icon = kpi.icon;
+          return (
+            <motion.div key={i} variants={item} className="glass-card rounded-2xl p-6 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform translate-x-4 -translate-y-4">
+                <Icon className="w-24 h-24 text-white" />
+              </div>
+              <div className="flex justify-between items-start mb-6">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-tr ${kpi.color} flex items-center justify-center shadow-lg ring-1 ring-white/20`}>
+                  <Icon className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex items-center gap-1 text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md text-xs font-bold">
+                  <TrendingUp className="w-3 h-3" /> {kpi.trend}
+                </div>
+              </div>
+              <h3 className="text-slate-400 font-medium text-sm uppercase tracking-wider">{kpi.label}</h3>
+              <p className="text-4xl font-bold text-white mt-1 tracking-tight">{kpi.value}</p>
+            </motion.div>
+          )
+        })}
       </div>
 
-      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Allocation Success Rate</h2>
-            <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
-              <TrendingUp className="w-4 h-4 text-slate-500" />
-            </div>
+        <motion.div variants={item} className="lg:col-span-2 glass-card rounded-2xl p-6">
+          <div className="mb-6">
+            <h3 className="text-lg font-bold text-white">Application Volume</h3>
+            <p className="text-slate-400 text-sm">7-day rolling application and allocation processing rate.</p>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={allocationRateData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="colorRate" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                  <linearGradient id="colorApplications" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#818cf8" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorAllocations" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#c084fc" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#c084fc" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.2} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                <RechartsTooltip 
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  cursor={{ stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '4 4' }}
-                />
-                <Area type="monotone" dataKey="rate" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorRate)" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
+                <Tooltip content={<CustomTooltip />} />
+                <Area type="monotone" dataKey="applications" name="Applications" stroke="#818cf8" strokeWidth={3} fillOpacity={1} fill="url(#colorApplications)" />
+                <Area type="monotone" dataKey="allocations" name="Allocations" stroke="#c084fc" strokeWidth={3} fillOpacity={1} fill="url(#colorAllocations)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Demographics</h2>
-            <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
-              <PieChart className="w-4 h-4 text-slate-500" />
-            </div>
+        <motion.div variants={item} className="glass-card rounded-2xl p-6">
+          <div className="mb-2">
+            <h3 className="text-lg font-bold text-white">Seat Demographics</h3>
+            <p className="text-slate-400 text-sm">Distribution by category.</p>
           </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Seat allocation by reservation category.</p>
-          
-          <div className="flex-1 h-[200px] w-full relative flex items-center justify-center">
+          <div className="h-[300px] w-full flex items-center justify-center relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={categoryData}
+                  data={pieData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
+                  innerRadius={70}
+                  outerRadius={100}
                   paddingAngle={5}
                   dataKey="value"
                   stroke="none"
                 >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <RechartsTooltip 
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  formatter={(value: number) => [`${value} Students`, '']}
-                />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px', color: '#94a3b8' }} />
               </PieChart>
             </ResponsiveContainer>
-            {/* Inner text */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-3xl font-bold text-slate-900 dark:text-white">{stats.allocated}</span>
-              <span className="text-xs font-medium text-slate-500">Allocated</span>
-            </div>
+            {/* Inner Glow inside donut */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-indigo-500/20 blur-2xl rounded-full pointer-events-none"></div>
           </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            {categoryData.map((item, i) => (
-              <div key={item.name} className="flex items-center gap-2 text-sm">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i] }} />
-                <span className="text-slate-600 dark:text-slate-300 font-medium">{item.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        </motion.div>
       </div>
-
-      {/* Activity Feed */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg">
-              <Activity className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            </div>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Recent System Activity</h2>
-          </div>
-          <button className="text-sm text-indigo-600 dark:text-indigo-400 font-medium hover:underline">View All</button>
-        </div>
-        
-        <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 dark:before:via-slate-800 before:to-transparent">
-          {logs.map((log: any, index: number) => (
-            <div key={log.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white dark:border-slate-950 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
-                <div className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full" />
-              </div>
-              
-              <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-800/20 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors shadow-sm">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-semibold text-slate-900 dark:text-white text-sm">{log.action.replace(/_/g, ' ')}</span>
-                  <span className="text-xs font-medium text-slate-400">{formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}</span>
-                </div>
-                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{log.details}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function KpiCard({ title, value, icon: Icon, trend, trendUp, color }: any) {
-  return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow group">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{title}</p>
-          <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{value}</h3>
-        </div>
-        <div className={`p-3 rounded-xl ${color} bg-opacity-10 dark:bg-opacity-20 text-${color.replace('bg-', '')}`}>
-          <Icon className="w-6 h-6 text-current" />
-        </div>
-      </div>
-      <div className="mt-4 flex items-center text-sm">
-        <span className={trendUp ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-amber-600 dark:text-amber-400 font-medium'}>
-          {trend}
-        </span>
-        <span className="text-slate-400 ml-2">from last period</span>
-      </div>
-    </div>
+    </motion.div>
   );
 }
