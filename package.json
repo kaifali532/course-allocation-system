@@ -15,7 +15,8 @@
     "build:backend": "npm run build --workspace=backend",
     "build": "npm run build:frontend && npm run build:backend",
     "start:backend": "npm run start --workspace=backend",
-    "start": "npm run start:backend"
+    "start": "npm run start:backend",
+    "postinstall": "npm run postinstall --workspace=backend"
   },
   "dependencies": {
     "concurrently": "^8.2.2"
