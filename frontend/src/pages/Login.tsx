@@ -16,7 +16,11 @@ export default function Login() {
       localStorage.setItem('token', res.data.token);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+      if (typeof err.response?.data === 'string') {
+        setError(`Server Error (${err.response.status}): The API is failing. Check Vercel Function logs.`);
+      } else {
+        setError(err.response?.data?.message || err.message || 'Login failed');
+      }
     }
   };
 

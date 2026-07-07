@@ -15,6 +15,11 @@ app.use(helmet());
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
 app.use('/api', routes);
+app.use('/', routes);
+
+app.use((req, res, next) => {
+  res.status(404).json({ success: false, message: `Route not found: ${req.url}` });
+});
 
 app.use(errorHandler);
 
