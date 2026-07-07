@@ -31,3 +31,26 @@ export const getStudents = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const updateStudent = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const student = await prisma.student.update({
+      where: { id },
+      data: req.body
+    });
+    res.status(200).json({ success: true, data: student });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteStudent = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    await prisma.student.delete({ where: { id } });
+    res.status(200).json({ success: true, message: 'Student deleted successfully' });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};

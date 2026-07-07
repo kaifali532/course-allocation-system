@@ -4,6 +4,7 @@ import { DataTable } from '../components/DataTable';
 import { StudentModal } from '../components/StudentModal';
 import { Plus, User, Edit2, Trash2 } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
+import toast from 'react-hot-toast';
 
 export default function Students() {
   const [students, setStudents] = useState([]);
@@ -30,10 +31,11 @@ export default function Students() {
     if (confirm('Are you sure you want to delete this student?')) {
       try {
         await api.delete(`/students/${id}`);
+        toast.success('Student deleted successfully');
         fetchStudents();
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to delete student', error);
-        alert('Failed to delete student');
+        toast.error(error?.response?.data?.message || 'Failed to delete student');
       }
     }
   };

@@ -25,3 +25,26 @@ export const getCourses = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const updateCourse = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const course = await prisma.course.update({
+      where: { id },
+      data: req.body
+    });
+    res.status(200).json({ success: true, data: course });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteCourse = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    await prisma.course.delete({ where: { id } });
+    res.status(200).json({ success: true, message: 'Course deleted successfully' });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};

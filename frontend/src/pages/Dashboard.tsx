@@ -50,7 +50,7 @@ export default function Dashboard() {
     { name: 'SC', value: 150 },
     { name: 'ST', value: 100 },
   ];
-  const PIE_COLORS = ['#6366f1', '#3b82f6', '#8b5cf6', '#ec4899'];
+  const PIE_COLORS = ['#4f46e5', '#3b82f6', '#10b981', '#64748b'];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -105,10 +105,10 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Students', value: stats.totalStudents, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10', trend: '+12%' },
-          { label: 'Active Courses', value: stats.totalCourses, icon: BookOpen, color: 'text-violet-500', bg: 'bg-violet-500/10', trend: '+4%' },
-          { label: 'Seat Utilization', value: `${stats.seatUtilization}%`, icon: Layers, color: 'text-pink-500', bg: 'bg-pink-500/10', trend: '+8%' },
-          { label: 'Pending Processing', value: stats.pendingApplications, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500/10', trend: '-2%' },
+          { label: 'Total Students', value: stats.totalStudents, icon: Users, color: 'text-indigo-400', bg: 'bg-indigo-500/10', trend: '+12%' },
+          { label: 'Active Courses', value: stats.totalCourses, icon: BookOpen, color: 'text-blue-400', bg: 'bg-blue-500/10', trend: '+4%' },
+          { label: 'Seat Utilization', value: `${stats.seatUtilization}%`, icon: Layers, color: 'text-emerald-400', bg: 'bg-emerald-500/10', trend: '+8%' },
+          { label: 'Pending Processing', value: stats.pendingApplications, icon: Clock, color: 'text-amber-400', bg: 'bg-amber-500/10', trend: '-2%' },
         ].map((kpi, i) => {
           const Icon = kpi.icon;
           return (
@@ -139,20 +139,20 @@ export default function Dashboard() {
               <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorApplications" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorAllocations" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#2a2a35" />
                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="applications" name="Applications" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorApplications)" />
-                <Area type="monotone" dataKey="allocations" name="Allocations" stroke="#8b5cf6" strokeWidth={2} fillOpacity={1} fill="url(#colorAllocations)" />
+                <Area type="monotone" dataKey="applications" name="Applications" stroke="#4f46e5" strokeWidth={2} fillOpacity={1} fill="url(#colorApplications)" />
+                <Area type="monotone" dataKey="allocations" name="Allocations" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorAllocations)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

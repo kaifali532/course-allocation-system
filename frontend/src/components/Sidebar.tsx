@@ -59,8 +59,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="h-16 flex items-center px-4 border-b border-[#22222a]">
           <div className="flex items-center justify-between w-full px-2 py-1.5 hover:bg-[#1a1a24] rounded-lg cursor-pointer transition-colors border border-transparent hover:border-[#2a2a35]">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-inner">
-                <Network className="w-4 h-4 text-white" />
+              <div className="w-7 h-7 bg-white rounded flex items-center justify-center shadow-sm">
+                <Network className="w-4 h-4 text-black" />
               </div>
               <div className="flex flex-col">
                 <span className="font-semibold text-sm text-slate-200 leading-none">University System</span>
@@ -83,13 +83,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   to={item.path}
                   onClick={() => window.innerWidth < 1024 && onClose()}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150",
+                    "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200",
                     isActive 
-                      ? "bg-indigo-500/10 text-indigo-400" 
+                      ? "bg-[#22222a] text-white shadow-sm" 
                       : "text-slate-400 hover:bg-[#1a1a24] hover:text-slate-200"
                   )}
                 >
-                  <Icon className={cn("w-4 h-4", isActive ? "text-indigo-400" : "text-slate-500")} />
+                  <Icon className={cn("w-4 h-4 transition-colors", isActive ? "text-slate-200" : "text-slate-500 group-hover:text-slate-400")} />
                   {item.name}
                 </Link>
               );
@@ -108,10 +108,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <span className="text-xs text-slate-500 truncate">admin@university.edu</span>
             </div>
           </div>
-          <button className="flex items-center gap-3 px-3 py-2 w-full rounded-md text-sm font-medium text-slate-400 hover:bg-[#1a1a24] hover:text-slate-200 transition-colors">
+          <Link 
+            to="/settings"
+            onClick={() => window.innerWidth < 1024 && onClose()}
+            className="flex items-center gap-3 px-3 py-2 w-full rounded-md text-sm font-medium text-slate-400 hover:bg-[#1a1a24] hover:text-slate-200 transition-colors"
+          >
             <Settings className="w-4 h-4 text-slate-500" />
             Settings
-          </button>
+          </Link>
           <button 
             onClick={handleLogout}
             className="flex items-center gap-3 px-3 py-2 w-full rounded-md text-sm font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-colors mt-1"

@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import MainLayout from './layouts/MainLayout';
 
@@ -11,11 +12,13 @@ const Courses = lazy(() => import('./pages/Courses'));
 const Allocation = lazy(() => import('./pages/Allocation'));
 const Assistant = lazy(() => import('./pages/Assistant'));
 const Reports = lazy(() => import('./pages/Reports'));
+const Settings = lazy(() => import('./pages/Settings'));
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <Toaster position="top-right" toastOptions={{ style: { background: '#1e1e24', color: '#fff' } }} />
       <Router>
         <Suspense fallback={
           <div className="flex items-center justify-center min-h-screen bg-[#0a0a0f]">
@@ -32,6 +35,7 @@ function App() {
               <Route path="allocations" element={<Allocation />} />
               <Route path="assistant" element={<Assistant />} />
               <Route path="reports" element={<Reports />} />
+              <Route path="settings" element={<Settings />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
           </Routes>

@@ -2,6 +2,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { api } from '../services/api';
+import toast from 'react-hot-toast';
 
 interface StudentModalProps {
   isOpen: boolean;
@@ -77,13 +78,17 @@ export function StudentModal({ isOpen, onClose, onSuccess, student }: StudentMod
 
       if (student) {
         await api.put(`/students/${student.id}`, payload);
+        toast.success('Student updated successfully');
       } else {
         await api.post('/students', payload);
+        toast.success('Student added successfully');
       }
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'An error occurred');
+      const msg = err.response?.data?.message || err.message || 'An error occurred';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

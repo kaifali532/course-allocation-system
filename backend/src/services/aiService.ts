@@ -43,8 +43,13 @@ export class GeminiProvider implements AIProvider {
     `;
 
     const prompt = `${context}\n\nUser Question: ${query}`;
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    try {
+      const result = await model.generateContent(prompt);
+      return result.response.text();
+    } catch (error: any) {
+      console.error('AI Generation Error:', error);
+      return "The AI provider is currently unavailable or misconfigured. Please check your API key in Settings or try again later.";
+    }
   }
 }
 

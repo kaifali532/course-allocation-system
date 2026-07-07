@@ -2,6 +2,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { api } from '../services/api';
+import toast from 'react-hot-toast';
 
 interface CourseModalProps {
   isOpen: boolean;
@@ -59,13 +60,17 @@ export function CourseModal({ isOpen, onClose, onSuccess, course }: CourseModalP
 
       if (course) {
         await api.put(`/courses/${course.id}`, payload);
+        toast.success('Course updated successfully');
       } else {
         await api.post('/courses', payload);
+        toast.success('Course added successfully');
       }
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'An error occurred');
+      const msg = err.response?.data?.message || err.message || 'An error occurred';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

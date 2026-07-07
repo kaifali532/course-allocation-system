@@ -4,6 +4,7 @@ import { DataTable } from '../components/DataTable';
 import { CourseModal } from '../components/CourseModal';
 import { Plus, Book, Edit2, Trash2 } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
+import toast from 'react-hot-toast';
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
@@ -30,10 +31,11 @@ export default function Courses() {
     if (confirm('Are you sure you want to delete this course? This might fail if students have allocations to it.')) {
       try {
         await api.delete(`/courses/${id}`);
+        toast.success('Course deleted successfully');
         fetchCourses();
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to delete course', error);
-        alert('Failed to delete course. It might be referenced in allocations.');
+        toast.error(error?.response?.data?.message || 'Failed to delete course');
       }
     }
   };
