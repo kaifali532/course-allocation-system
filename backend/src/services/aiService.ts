@@ -7,13 +7,19 @@ export interface AIProvider {
 }
 
 export class GeminiProvider implements AIProvider {
-  private ai: GoogleGenerativeAI;
+  private ai: GoogleGenerativeAI | null = null;
   
   constructor() {
-    this.ai = new GoogleGenerativeAI(env.GEMINI_API_KEY);
+    if (env.GEMINI_API_KEY) {
+      this.ai = new GoogleGenerativeAI(env.GEMINI_API_KEY);
+    }
   }
 
   async askQuestion(query: string): Promise<string> {
+    if (!this.ai) {
+      return "**Setup Required**: The AI Assistant requires a `GEMINI_API_KEY` environment variable. Please generate an API key from Google AI Studio and add it to your environment variables to enable this feature.";
+    }
+
     const model = this.ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
     
     // RAG approach: fetch DB stats to provide context so it doesn't hallucinate
