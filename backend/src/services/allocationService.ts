@@ -36,7 +36,7 @@ export const runAllocationLogic = async () => {
 
       // Get current allocations for this course to check category limits
       const courseAllocations = await prisma.allocation.findMany({ where: { courseId } });
-      const countCat = (cat: string) => courseAllocations.filter(a => a.allocatedCat === cat).length;
+      const countCat = (cat: string) => courseAllocations.filter((a: any) => a.allocatedCat === cat).length;
 
       // Try Unreserved (General) seats first, regardless of student's category (standard merit rule)
       let selectedCat: string | null = null;
