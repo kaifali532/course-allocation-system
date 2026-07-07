@@ -46,34 +46,34 @@ export default function Courses() {
       {
         accessorKey: 'courseId',
         header: 'Code',
-        cell: (info) => <span className="font-bold text-slate-200">{info.getValue()}</span>,
+        cell: (info) => <span className="font-bold text-white/80">{info.getValue()}</span>,
       },
       {
         accessorKey: 'courseName',
         header: 'Course Name',
         cell: (info) => (
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-violet-500/10 flex items-center justify-center">
-              <Book className="w-4 h-4 text-violet-400" />
+            <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-inner">
+              <Book className="w-4 h-4 text-white/70" />
             </div>
-            <span className="font-semibold text-slate-200">{info.getValue()}</span>
+            <span className="font-semibold text-white/90">{info.getValue()}</span>
           </div>
         ),
       },
       {
         accessorKey: 'department',
         header: 'Department',
-        cell: (info) => <span className="text-slate-400">{info.getValue()}</span>,
+        cell: (info) => <span className="text-white/60">{info.getValue()}</span>,
       },
       {
         accessorKey: 'totalSeats',
         header: 'Total Seats',
-        cell: (info) => <span className="text-slate-300 font-medium">{info.getValue()} Seats</span>,
+        cell: (info) => <span className="text-white/80 font-medium">{info.getValue()} Seats</span>,
       },
       {
         accessorKey: 'minMarksPercentage',
         header: 'Cutoff (%)',
-        cell: (info) => <span className="text-emerald-400 font-semibold">{info.getValue()}%</span>,
+        cell: (info) => <span className="text-emerald-400/90 font-bold">{info.getValue()}%</span>,
       },
       {
         id: 'actions',
@@ -84,14 +84,14 @@ export default function Courses() {
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => { setEditingCourse(course); setIsModalOpen(true); }}
-                className="p-1.5 rounded bg-[#1a1a24] text-slate-400 hover:text-indigo-400 hover:bg-[#22222a] transition-colors border border-[#2a2a35]"
+                className="p-2 rounded-xl bg-white/5 text-white/50 hover:text-white hover:bg-white/10 transition-colors border border-white/5"
                 title="Edit Course"
               >
                 <Edit2 className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => setConfirmState({ isOpen: true, courseId: course.id })}
-                className="p-1.5 rounded bg-[#1a1a24] text-slate-400 hover:text-red-400 hover:bg-[#22222a] transition-colors border border-[#2a2a35]"
+                className="p-2 rounded-xl bg-white/5 text-white/50 hover:text-red-400 hover:bg-red-500/10 transition-colors border border-white/5"
                 title="Delete Course"
               >
                 <Trash2 className="w-4 h-4" />
@@ -105,25 +105,25 @@ export default function Courses() {
   );
 
   return (
-    <div className="space-y-6 fade-in">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-6 fade-in h-full flex flex-col">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Course Capacity Matrix</h1>
-          <p className="text-slate-400 mt-1 text-sm">Manage available courses, departments, and seat limits.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-sm">Course Capacity Matrix</h1>
+          <p className="text-white/60 mt-1 text-sm">Manage available courses, departments, and seat limits.</p>
         </div>
         <button 
           onClick={() => { setEditingCourse(null); setIsModalOpen(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
+          className="flex items-center gap-2 px-6 py-2.5 bg-white text-black hover:bg-gray-200 rounded-full text-sm font-bold transition-all shadow-[0_10px_20px_rgba(255,255,255,0.15)] hover:-translate-y-0.5 duration-300"
         >
           <Plus className="w-4 h-4" />
           Add Course
         </button>
       </div>
 
-      <div className="solid-card p-6">
+      <div className="flex-1 min-h-0">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+            <div className="w-8 h-8 rounded-full border-t-2 border-white animate-spin"></div>
           </div>
         ) : (
           <DataTable 

@@ -13,9 +13,27 @@ model User {
   name      String
   email     String   @unique
   password  String
+  avatarUrl String?
   role      String   @default("ADMIN")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model SystemSettings {
+  id              String   @id @default("default")
+  universityName  String   @default("State University")
+  aiProvider      String   @default("gemini") // gemini, openai
+  allocationRules String   @default("MERIT_FIRST")
+  theme           String   @default("dark")
+  updatedAt       DateTime @updatedAt
+}
+
+model RecentActivity {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  type      String   @default("INFO") // INFO, SUCCESS, WARNING, ERROR
+  createdAt DateTime @default(now())
 }
 
 model Student {

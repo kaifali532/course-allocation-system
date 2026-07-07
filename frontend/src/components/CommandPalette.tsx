@@ -75,6 +75,24 @@ export function CommandPalette() {
             >
               <Layers className="w-4 h-4 mr-4 text-slate-400" /> Allocation Results
             </Command.Item>
+            <Command.Item 
+              onSelect={() => runCommand(() => navigate('/assistant'))}
+              className="flex items-center px-4 py-3.5 rounded-xl cursor-pointer hover:bg-white/5 aria-selected:bg-indigo-500/10 aria-selected:text-indigo-300 text-sm font-medium text-slate-300 transition-colors mt-1"
+            >
+              <LayoutDashboard className="w-4 h-4 mr-4 text-slate-400" /> AI Assistant
+            </Command.Item>
+            <Command.Item 
+              onSelect={() => runCommand(() => navigate('/reports'))}
+              className="flex items-center px-4 py-3.5 rounded-xl cursor-pointer hover:bg-white/5 aria-selected:bg-indigo-500/10 aria-selected:text-indigo-300 text-sm font-medium text-slate-300 transition-colors mt-1"
+            >
+              <LayoutDashboard className="w-4 h-4 mr-4 text-slate-400" /> System Reports
+            </Command.Item>
+            <Command.Item 
+              onSelect={() => runCommand(() => navigate('/settings'))}
+              className="flex items-center px-4 py-3.5 rounded-xl cursor-pointer hover:bg-white/5 aria-selected:bg-indigo-500/10 aria-selected:text-indigo-300 text-sm font-medium text-slate-300 transition-colors mt-1"
+            >
+              <LayoutDashboard className="w-4 h-4 mr-4 text-slate-400" /> System Settings
+            </Command.Item>
           </Command.Group>
         </Command.List>
       </Command>

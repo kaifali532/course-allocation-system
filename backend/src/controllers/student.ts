@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
 import prisma from '../config/db';
+import { logActivity } from '../utils/activity';
 
 export const createStudent = async (req: Request, res: Response) => {
   try {
     const student = await prisma.student.create({ data: req.body });
+    await logActivity('Student Added', `Added student ${student.fullName} (${student.studentId})`, 'SUCCESS');
     res.status(201).json({ success: true, data: student });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
@@ -39,6 +41,7 @@ export const updateStudent = async (req: Request, res: Response) => {
       where: { id },
       data: req.body
     });
+    await logActivity('Student Updated', `Updated student ${student.fullName} (${student.studentId})`, 'INFO');
     res.status(200).json({ success: true, data: student });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
@@ -48,8 +51,9 @@ export const updateStudent = async (req: Request, res: Response) => {
 export const deleteStudent = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
-    await prisma.student.delete({ where: { id } });
-    res.status(200).json({ success: true, message: 'Student deleted successfully' });
+    const student = await prisma.student.delete({ where: { id } });
+    await logActivity('Student Deleted', `Deleted student ${student.fullName} (${student.studentId})`, 'WARNING');
+    res.status(200).json({ success: true, message: 'Student deleted' });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
   }

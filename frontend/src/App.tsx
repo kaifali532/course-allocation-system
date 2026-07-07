@@ -13,6 +13,7 @@ const Allocation = lazy(() => import('./pages/Allocation'));
 const Assistant = lazy(() => import('./pages/Assistant'));
 const Reports = lazy(() => import('./pages/Reports'));
 const Settings = lazy(() => import('./pages/Settings'));
+const Analytics = lazy(() => import('./pages/Analytics'));
 const queryClient = new QueryClient();
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
               <Route path="assistant" element={<Assistant />} />
               <Route path="reports" element={<Reports />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="analytics" element={<Analytics />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
           </Routes>

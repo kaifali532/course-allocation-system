@@ -1,88 +1,156 @@
-import { useState } from 'react';
-import { Download, FileText, FileSpreadsheet } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { api } from '../services/api';
+import { FileText, Download, FileSpreadsheet, FileCode } from 'lucide-react';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+import Papa from 'papaparse';
+import { format } from 'date-fns';
 
 export default function Reports() {
-  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const downloadCSV = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get('/students?limit=10000');
-      const students = res.data.data;
-      
-      const headers = ['Student ID', 'Name', 'Email', 'Marks', 'Category', 'Status'];
-      const csvContent = [
-        headers.join(','),
-        ...students.map((s: any) => 
-          [s.studentId, s.fullName, s.email, s.marks, s.category, s.status].join(',')
-        )
-      ].join('\n');
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [statsRes, studentsRes, coursesRes] = await Promise.all([
+          api.get('/analytics'),
+          api.get('/students?limit=1000'), // fetching a large chunk for export
+          api.get('/courses?limit=1000')
+        ]);
+        setData({
+          stats: statsRes.data.data,
+          students: studentsRes.data.data,
+          courses: coursesRes.data.data
+        });
+      } catch (error) {
+        toast.error('Failed to load report data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'allocations_report.csv');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to generate report');
-    } finally {
-      setLoading(false);
-    }
+  const generatePDF = () => {
+    if (!data) return;
+    const doc = new jsPDF();
+    const dateStr = format(new Date(), 'yyyy-MM-dd HH:mm');
+
+    doc.setFontSize(20);
+    doc.text('University Course Allocation Report', 14, 22);
+    
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${dateStr}`, 14, 30);
+    
+    doc.setFontSize(14);
+    doc.text('System Overview', 14, 45);
+
+    autoTable(doc, {
+      startY: 50,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Total Students', data.stats.totalStudents],
+        ['Total Courses', data.stats.totalCourses],
+        ['Total Allocations', data.stats.totalAllocations],
+        ['Seat Utilization', `${data.stats.seatUtilization}%`],
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [129, 140, 248] }
+    });
+
+    doc.setFontSize(14);
+    doc.text('Department Statistics', 14, (doc as any).lastAutoTable.finalY + 15);
+
+    const deptRows = Object.keys(data.stats.departmentStats).map(dept => [
+      dept,
+      data.stats.departmentStats[dept].courses,
+      data.stats.departmentStats[dept].seats
+    ]);
+
+    autoTable(doc, {
+      startY: (doc as any).lastAutoTable.finalY + 20,
+      head: [['Department', 'Courses', 'Total Seats']],
+      body: deptRows,
+      theme: 'grid',
+      headStyles: { fillColor: [52, 211, 153] }
+    });
+
+    doc.save(`Allocation_Report_${format(new Date(), 'yyyyMMdd')}.pdf`);
+    toast.success('PDF Report generated');
   };
 
+  const generateExcel = () => {
+    if (!data) return;
+    const wb = XLSX.utils.book_new();
+    
+    // Students sheet
+    const wsStudents = XLSX.utils.json_to_sheet(data.students);
+    XLSX.utils.book_append_sheet(wb, wsStudents, "Students");
+
+    // Courses sheet
+    const wsCourses = XLSX.utils.json_to_sheet(data.courses);
+    XLSX.utils.book_append_sheet(wb, wsCourses, "Courses");
+
+    XLSX.writeFile(wb, `University_Data_${format(new Date(), 'yyyyMMdd')}.xlsx`);
+    toast.success('Excel file generated');
+  };
+
+  const generateCSV = () => {
+    if (!data) return;
+    const csv = Papa.unparse(data.students);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', `Students_${format(new Date(), 'yyyyMMdd')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('CSV file generated');
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="w-8 h-8 rounded-full border-t-2 border-white animate-spin"></div>
+      </div>
+    );
+  }
+
+  const reports = [
+    { title: 'Complete System PDF', desc: 'Comprehensive PDF containing metrics, department capacities, and recent trends.', icon: FileText, color: 'text-rose-400', action: generatePDF },
+    { title: 'Raw Data Export (Excel)', desc: 'Export all students, courses, and allocations as a multi-sheet Excel file.', icon: FileSpreadsheet, color: 'text-emerald-400', action: generateExcel },
+    { title: 'Student Roster (CSV)', desc: 'Generate a raw CSV file containing all student applications and statuses.', icon: FileCode, color: 'text-indigo-400', action: generateCSV },
+  ];
+
   return (
-    <div className="space-y-6 fade-in max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-8 mt-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Reports & Exports</h2>
-          <p className="text-slate-500">Download allocation data in various formats.</p>
-        </div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 pb-8">
+      <div>
+        <h1 className="text-3xl font-bold text-white tracking-tight">System Reports</h1>
+        <p className="text-white/50 mt-2">Generate and download official university reports and data exports.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
-          <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 rounded-xl flex items-center justify-center mb-4">
-            <FileSpreadsheet className="w-6 h-6" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {reports.map((report, idx) => (
+          <div key={idx} className="solid-card p-6 flex flex-col items-start group">
+            <div className={`w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform ${report.color}`}>
+              <report.icon className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">{report.title}</h3>
+            <p className="text-white/50 text-sm mb-8 flex-1">{report.desc}</p>
+            <button 
+              onClick={report.action}
+              className="w-full px-6 py-3 bg-white text-black hover:bg-gray-200 rounded-full text-sm font-bold transition-all shadow-[0_10px_20px_rgba(255,255,255,0.15)] flex items-center justify-center gap-2 hover:-translate-y-0.5 duration-300"
+            >
+              <Download className="w-4 h-4" />
+              Generate
+            </button>
           </div>
-          <h3 className="text-lg font-semibold mb-2">CSV Export</h3>
-          <p className="text-sm text-slate-500 mb-6">Download the complete list of students and their allocation status as a CSV file.</p>
-          <button 
-            onClick={downloadCSV}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2.5 rounded-lg font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition-all"
-          >
-            <Download className="w-4 h-4" /> Download CSV
-          </button>
-        </div>
-
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm opacity-60">
-          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-500/20 text-blue-600 rounded-xl flex items-center justify-center mb-4">
-            <FileSpreadsheet className="w-6 h-6" />
-          </div>
-          <h3 className="text-lg font-semibold mb-2">Excel Export</h3>
-          <p className="text-sm text-slate-500 mb-6">Advanced Excel report with multiple sheets for courses and categories.</p>
-          <button disabled className="w-full flex items-center justify-center gap-2 bg-slate-200 dark:bg-slate-800 text-slate-500 px-4 py-2.5 rounded-lg font-medium cursor-not-allowed">
-            <Download className="w-4 h-4" /> Coming Soon
-          </button>
-        </div>
-
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm opacity-60">
-          <div className="w-12 h-12 bg-red-100 dark:bg-red-500/20 text-red-600 rounded-xl flex items-center justify-center mb-4">
-            <FileText className="w-6 h-6" />
-          </div>
-          <h3 className="text-lg font-semibold mb-2">PDF Report</h3>
-          <p className="text-sm text-slate-500 mb-6">Generate a printable PDF summary report of the allocation engine results.</p>
-          <button disabled className="w-full flex items-center justify-center gap-2 bg-slate-200 dark:bg-slate-800 text-slate-500 px-4 py-2.5 rounded-lg font-medium cursor-not-allowed">
-            <Download className="w-4 h-4" /> Coming Soon
-          </button>
-        </div>
+        ))}
       </div>
-    </div>
+    </motion.div>
   );
 }

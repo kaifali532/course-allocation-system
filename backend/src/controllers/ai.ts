@@ -29,3 +29,12 @@ export const getHistory = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const clearHistory = async (req: Request, res: Response) => {
+  try {
+    await prisma.aiQueryHistory.deleteMany();
+    res.status(200).json({ success: true, message: 'Chat history cleared' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

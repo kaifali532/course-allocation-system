@@ -58,10 +58,10 @@ export default function Students() {
         header: 'Full Name',
         cell: (info) => (
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-indigo-500/10 flex items-center justify-center">
-              <User className="w-4 h-4 text-indigo-400" />
+            <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-inner">
+              <User className="w-4 h-4 text-white/70" />
             </div>
-            <span className="font-semibold text-slate-200">{info.getValue()}</span>
+            <span className="font-semibold text-white/90">{info.getValue()}</span>
           </div>
         ),
       },
@@ -86,13 +86,13 @@ export default function Students() {
         header: 'Marks',
         cell: (info) => (
           <div className="flex items-center gap-2">
-            <div className="w-16 h-2 bg-[#22222a] rounded-full overflow-hidden">
+            <div className="w-20 h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
               <div 
-                className="h-full bg-emerald-500 rounded-full" 
+                className="h-full bg-emerald-400 rounded-full shadow-[0_0_10px_rgba(52,211,153,0.5)]" 
                 style={{ width: `${Math.min(100, Number(info.getValue()))}%` }}
               />
             </div>
-            <span className="text-slate-300 font-medium">{info.getValue()}%</span>
+            <span className="text-white/80 font-medium text-xs">{info.getValue()}%</span>
           </div>
         ),
       },
@@ -105,14 +105,14 @@ export default function Students() {
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => { setEditingStudent(student); setIsModalOpen(true); }}
-                className="p-1.5 rounded bg-[#1a1a24] text-slate-400 hover:text-indigo-400 hover:bg-[#22222a] transition-colors border border-[#2a2a35]"
+                className="p-2 rounded-xl bg-white/5 text-white/50 hover:text-white hover:bg-white/10 transition-colors border border-white/5"
                 title="Edit Student"
               >
                 <Edit2 className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => setConfirmState({ isOpen: true, studentId: student.id })}
-                className="p-1.5 rounded bg-[#1a1a24] text-slate-400 hover:text-red-400 hover:bg-[#22222a] transition-colors border border-[#2a2a35]"
+                className="p-2 rounded-xl bg-white/5 text-white/50 hover:text-red-400 hover:bg-red-500/10 transition-colors border border-white/5"
                 title="Delete Student"
               >
                 <Trash2 className="w-4 h-4" />
@@ -126,22 +126,22 @@ export default function Students() {
   );
 
   return (
-    <div className="space-y-6 fade-in">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-6 fade-in h-full flex flex-col">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Student Directory</h1>
-          <p className="text-slate-400 mt-1 text-sm">Manage student profiles, categories, and entrance marks.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-sm">Student Directory</h1>
+          <p className="text-white/60 mt-1 text-sm">Manage student profiles, categories, and entrance marks.</p>
         </div>
         <button 
           onClick={() => { setEditingStudent(null); setIsModalOpen(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
+          className="flex items-center gap-2 px-6 py-2.5 bg-white text-black hover:bg-gray-200 rounded-full text-sm font-bold transition-all shadow-[0_10px_20px_rgba(255,255,255,0.15)] hover:-translate-y-0.5 duration-300"
         >
           <Plus className="w-4 h-4" />
           Add Student
         </button>
       </div>
 
-      <div className="solid-card p-6">
+      <div className="flex-1 min-h-0">
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />

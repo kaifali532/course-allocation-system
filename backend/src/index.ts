@@ -6,6 +6,7 @@ import { env } from './config/env';
 import { errorHandler } from './middlewares/error';
 import routes from './routes';
 import { logger } from './utils/logger';
+import path from 'path';
 
 const app = express();
 
@@ -17,16 +18,21 @@ app.use(morgan('combined', { stream: { write: message => logger.info(message.tri
 app.use('/api', routes);
 app.use('/', routes);
 
+// Serve uploaded static files
+app.use('/uploads', express.static(path.join(__dirname, '../../public/uploads')));
+
 app.use((req, res, next) => {
   res.status(404).json({ success: false, message: `Route not found: ${req.url}` });
 });
 
 app.use(errorHandler);
 
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(env.PORT, () => {
-    logger.info(`Server is running on port ${env.PORT}`);
-  });
-}
+const server = app.listen(env.PORT, () => {
+  logger.info(`Server is running on port ${env.PORT}`);
+});
+
+server.on('error', (error) => {
+  logger.error(`Error starting server: ${error}`);
+});
 
 export default app;

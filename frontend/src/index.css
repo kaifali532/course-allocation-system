@@ -4,40 +4,44 @@
 
 @layer base {
   :root {
-    /* Premium Apple/Linear inspired Dark Theme */
-    --background: 240 10% 4%; /* Very dark, almost black */
-    --foreground: 210 40% 98%;
+    /* Premium Cinematic Game UI Theme - Warm Sepia/Olive Palette */
+    --background: 40 20% 6%; /* Deep dark warm brown */
+    --foreground: 40 20% 95%; /* Off-white warm text */
 
-    --card: 240 6% 10%; /* Solid dark card, clearly elevated from background */
-    --card-foreground: 210 40% 98%;
+    --card: 40 10% 12%; 
+    --card-foreground: 40 20% 95%;
 
-    --popover: 240 6% 10%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 40 10% 10%;
+    --popover-foreground: 40 20% 95%;
 
-    --primary: 250 100% 65%; /* Elegant Purple/Indigo */
-    --primary-foreground: 210 40% 98%;
+    --primary: 35 40% 65%; /* Soft golden/sepia accent */
+    --primary-foreground: 40 20% 10%;
 
-    --secondary: 240 6% 15%; /* Elevated neutral surface */
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 40 10% 20%; 
+    --secondary-foreground: 40 20% 95%;
 
-    --muted: 240 6% 15%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 40 10% 20%;
+    --muted-foreground: 40 10% 65%;
 
-    --accent: 250 100% 65%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 35 40% 65%;
+    --accent-foreground: 40 20% 95%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 40 20% 95%;
 
-    --border: 240 6% 15%; /* Clear borders for separation */
-    --input: 240 6% 15%;
-    --ring: 250 100% 65%;
+    --border: 40 10% 20%; 
+    --input: 40 10% 20%;
+    --ring: 35 40% 65%;
 
-    --radius: 0.75rem; /* Clean, modern radius (not too round) */
-  }
+    --radius: 2rem; /* Even larger rounded corners for cards matching the reference */
 
-  .dark {
-    /* Root values are already dark mode optimized */
+    /* Premium Extended Tokens */
+    --glass-bg: rgba(30, 25, 20, 0.6); /* Warmer glass */
+    --glass-border: rgba(255, 245, 230, 0.08); /* Warm highlight */
+    --glass-highlight: rgba(255, 245, 230, 0.15);
+    --primary-glow: rgba(220, 180, 120, 0.2);
+    --card-gradient-1: linear-gradient(135deg, rgba(40, 35, 30, 0.8) 0%, rgba(15, 12, 10, 0.95) 100%);
+    --card-gradient-hover: linear-gradient(135deg, rgba(50, 45, 40, 0.9) 0%, rgba(20, 15, 12, 0.95) 100%);
   }
 }
 
@@ -45,10 +49,16 @@
   * {
     @apply border-border;
   }
+  html, body, #root {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background-color: hsl(240, 10%, 4%);
   }
 
   /* Typography Utilities */
@@ -56,49 +66,118 @@
     @apply text-white tracking-tight font-semibold;
   }
 
-  .fade-in {
-    animation: fadeIn 0.4s ease-out forwards;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  /* Premium Animations */
+  @keyframes hoverLift {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-4px) scale(1.02); }
   }
 
-  /* Solid Premium Cards with clear elevation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 15px var(--primary-glow); }
+    50% { box-shadow: 0 0 25px rgba(168, 177, 255, 0.3); }
+  }
+
+  @keyframes slideInUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
   .solid-card {
-    @apply bg-[#121218] border border-[#22222a] shadow-lg rounded-xl transition-shadow duration-200;
+    background: var(--card-gradient-1);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    @apply border border-white/5 shadow-[0_20px_40px_rgba(0,0,0,0.5)] rounded-[32px] transition-all duration-500 relative overflow-hidden;
   }
   
   .solid-card:hover {
-    @apply shadow-xl border-[#2a2a35];
+    background: var(--card-gradient-hover);
+    @apply border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.7)] transform -translate-y-2 scale-[1.01];
+  }
+  
+  /* Inner lighting effect for cards */
+  .solid-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 transition-opacity duration-500 pointer-events-none;
+  }
+  .solid-card:hover::before {
+    @apply opacity-100;
   }
 
-  /* Subtle Glass Overlays (only used when necessary) */
-  .subtle-glass {
-    @apply bg-[#121218]/80 backdrop-blur-md border border-[#22222a]/50;
+  .game-card {
+    @apply relative overflow-hidden rounded-[32px] transition-all duration-500 transform shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-white/5;
+  }
+  .game-card:hover {
+    @apply scale-[1.03] -translate-y-2 shadow-[0_30px_60px_rgba(0,0,0,0.8)] border-white/20;
+  }
+  .game-card-bg {
+    @apply absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out;
+  }
+  .game-card:hover .game-card-bg {
+    @apply scale-110;
+  }
+  .game-card-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-[#151210]/95 via-[#151210]/70 to-transparent;
   }
 
-  /* Enterprise Table Styling */
+  /* Enterprise Table Styling -> Glass Table Styling */
   .table-row-hover {
-    @apply hover:bg-[#1a1a24] transition-colors duration-150;
+    @apply hover:bg-white/5 transition-colors duration-200 border-b border-white/5;
   }
 
   .table-header {
-    @apply bg-[#121218] text-slate-400 font-semibold text-xs tracking-wider uppercase border-b border-[#22222a];
+    @apply bg-black/40 text-white/50 font-semibold text-xs tracking-wider uppercase border-b border-white/10;
   }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar {
+  /* Spatial UI Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
-  ::-webkit-scrollbar-track {
+  .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-[#2a2a35] rounded-full;
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full border-2 border-transparent bg-clip-padding;
   }
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-[#3a3a45];
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-white/20;
+  }
+
+  /* Premium Buttons */
+  .solid-btn {
+    @apply bg-white text-black font-medium border-none shadow-[0_4px_15px_rgba(255,255,255,0.2)] transition-all duration-300;
+  }
+  .solid-btn:hover {
+    @apply transform -translate-y-0.5 shadow-[0_8px_25px_rgba(255,255,255,0.3)] bg-gray-100;
+  }
+  .glass-btn {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 text-white shadow-[0_4px_15px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-300;
+  }
+  .glass-btn:hover {
+    @apply bg-white/10 border-white/20 transform -translate-y-0.5 shadow-[0_8px_25px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)];
+  }
+
+  /* Prose for React Markdown */
+  .prose pre {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .prose code {
+    color: #a8b1ff !important;
+    background-color: rgba(168, 177, 255, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+  }
+  .prose strong {
+    color: white !important;
   }
 }

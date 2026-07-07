@@ -120,165 +120,166 @@ export function StudentModal({ isOpen, onClose, onSuccess, student }: StudentMod
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-xl bg-[#111118] border border-[#22222a] p-6 text-left align-middle shadow-2xl transition-all">
-                <Dialog.Title as="div" className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-slate-100">
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-[32px] bg-black/60 backdrop-blur-3xl border border-white/10 p-8 text-left align-middle shadow-[0_40px_80px_rgba(0,0,0,0.8)] transition-all relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+                <Dialog.Title as="div" className="flex items-center justify-between mb-8 relative z-10">
+                  <h3 className="text-2xl font-bold text-white tracking-tight">
                     {student ? 'Edit Student' : 'Add New Student'}
                   </h3>
-                  <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[#1a1a24] text-slate-400 hover:text-slate-200 transition-colors">
+                  <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors border border-transparent hover:border-white/10">
                     <X className="w-5 h-5" />
                   </button>
                 </Dialog.Title>
 
                 {error && (
-                  <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm font-medium">
+                  <div className="mb-6 bg-red-500/20 border border-red-500/30 text-red-100 p-4 rounded-2xl text-sm font-medium backdrop-blur-md relative z-10">
                     {error}
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Student ID</label>
+                      <label className="block text-[11px] font-bold text-white/50 mb-2 uppercase tracking-widest">Student ID</label>
                       <input 
                         type="text" 
                         required
                         value={formData.studentId}
                         onChange={e => setFormData({...formData, studentId: e.target.value})}
-                        className="w-full px-3 py-2 bg-[#1a1a24] border border-[#2a2a35] rounded-md text-sm text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                        className="w-full px-4 py-3 bg-black/40 border border-white/10 hover:border-white/20 rounded-xl text-sm text-white focus:outline-none focus:border-white/40 transition-all placeholder:text-white/30 backdrop-blur-md shadow-inner"
                         placeholder="e.g. STU12345"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Full Name</label>
+                      <label className="block text-[11px] font-bold text-white/50 mb-2 uppercase tracking-widest">Full Name</label>
                       <input 
                         type="text" 
                         required
                         value={formData.fullName}
                         onChange={e => setFormData({...formData, fullName: e.target.value})}
-                        className="w-full px-3 py-2 bg-[#1a1a24] border border-[#2a2a35] rounded-md text-sm text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                        className="w-full px-4 py-3 bg-black/40 border border-white/10 hover:border-white/20 rounded-xl text-sm text-white focus:outline-none focus:border-white/40 transition-all placeholder:text-white/30 backdrop-blur-md shadow-inner"
                         placeholder="John Doe"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Email</label>
+                      <label className="block text-[11px] font-bold text-white/50 mb-2 uppercase tracking-widest">Email</label>
                       <input 
                         type="email" 
                         required
                         value={formData.email}
                         onChange={e => setFormData({...formData, email: e.target.value})}
-                        className="w-full px-3 py-2 bg-[#1a1a24] border border-[#2a2a35] rounded-md text-sm text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                        className="w-full px-4 py-3 bg-black/40 border border-white/10 hover:border-white/20 rounded-xl text-sm text-white focus:outline-none focus:border-white/40 transition-all placeholder:text-white/30 backdrop-blur-md shadow-inner"
                         placeholder="john@example.com"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Phone</label>
+                      <label className="block text-[11px] font-bold text-white/50 mb-2 uppercase tracking-widest">Phone</label>
                       <input 
                         type="text" 
                         required
                         value={formData.phone}
                         onChange={e => setFormData({...formData, phone: e.target.value})}
-                        className="w-full px-3 py-2 bg-[#1a1a24] border border-[#2a2a35] rounded-md text-sm text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                        className="w-full px-4 py-3 bg-black/40 border border-white/10 hover:border-white/20 rounded-xl text-sm text-white focus:outline-none focus:border-white/40 transition-all placeholder:text-white/30 backdrop-blur-md shadow-inner"
                         placeholder="+1 234 567 8900"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Gender</label>
+                      <label className="block text-[11px] font-bold text-white/50 mb-2 uppercase tracking-widest">Gender</label>
                       <select 
                         value={formData.gender}
                         onChange={e => setFormData({...formData, gender: e.target.value})}
-                        className="w-full px-3 py-2 bg-[#1a1a24] border border-[#2a2a35] rounded-md text-sm text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                        className="w-full px-4 py-3 bg-black/40 border border-white/10 hover:border-white/20 rounded-xl text-sm text-white focus:outline-none focus:border-white/40 transition-all backdrop-blur-md shadow-inner appearance-none"
                       >
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
+                        <option value="Male" className="bg-zinc-900">Male</option>
+                        <option value="Female" className="bg-zinc-900">Female</option>
+                        <option value="Other" className="bg-zinc-900">Other</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Category</label>
+                      <label className="block text-[11px] font-bold text-white/50 mb-2 uppercase tracking-widest">Category</label>
                       <select 
                         value={formData.category}
                         onChange={e => setFormData({...formData, category: e.target.value})}
-                        className="w-full px-3 py-2 bg-[#1a1a24] border border-[#2a2a35] rounded-md text-sm text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                        className="w-full px-4 py-3 bg-black/40 border border-white/10 hover:border-white/20 rounded-xl text-sm text-white focus:outline-none focus:border-white/40 transition-all backdrop-blur-md shadow-inner appearance-none"
                       >
-                        <option value="General">General</option>
-                        <option value="OBC">OBC</option>
-                        <option value="SC">SC</option>
-                        <option value="ST">ST</option>
+                        <option value="General" className="bg-zinc-900">General</option>
+                        <option value="OBC" className="bg-zinc-900">OBC</option>
+                        <option value="SC" className="bg-zinc-900">SC</option>
+                        <option value="ST" className="bg-zinc-900">ST</option>
                       </select>
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Entrance Exam Marks</label>
+                      <label className="block text-[11px] font-bold text-white/50 mb-2 uppercase tracking-widest">Entrance Exam Marks</label>
                       <input 
                         type="number" 
                         required
                         step="0.1"
                         value={formData.marks}
                         onChange={e => setFormData({...formData, marks: e.target.value})}
-                        className="w-full px-3 py-2 bg-[#1a1a24] border border-[#2a2a35] rounded-md text-sm text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                        className="w-full px-4 py-3 bg-black/40 border border-white/10 hover:border-white/20 rounded-xl text-sm text-white focus:outline-none focus:border-white/40 transition-all placeholder:text-white/30 backdrop-blur-md shadow-inner"
                         placeholder="e.g. 95.5"
                       />
                     </div>
                   </div>
 
-                  <div className="border-t border-[#22222a] pt-4 mt-6">
-                    <h4 className="text-sm font-semibold text-slate-200 mb-4">Course Preferences</h4>
-                    <div className="space-y-4">
+                  <div className="border-t border-white/10 pt-6 mt-8">
+                    <h4 className="text-sm font-bold text-white mb-5">Course Preferences</h4>
+                    <div className="space-y-5">
                       <div>
-                        <label className="block text-xs font-semibold text-indigo-400 mb-1.5 uppercase tracking-wider">Preference 1 (Required)</label>
+                        <label className="block text-[11px] font-bold text-emerald-400/80 mb-2 uppercase tracking-widest">Preference 1 (Required)</label>
                         <select 
                           required
                           value={formData.preferredCourse1Id}
                           onChange={e => setFormData({...formData, preferredCourse1Id: e.target.value})}
-                          className="w-full px-3 py-2 bg-[#1a1a24] border border-[#2a2a35] rounded-md text-sm text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                          className="w-full px-4 py-3 bg-black/40 border border-emerald-500/20 hover:border-emerald-500/40 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500/60 transition-all backdrop-blur-md shadow-inner appearance-none"
                         >
-                          <option value="">Select a course...</option>
+                          <option value="" className="bg-zinc-900 text-white/50">Select a course...</option>
                           {courses.map((c: any) => (
-                            <option key={c.id} value={c.id}>{c.courseName} ({c.courseId})</option>
+                            <option key={c.id} value={c.id} className="bg-zinc-900">{c.courseName} ({c.courseId})</option>
                           ))}
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Preference 2 (Optional)</label>
+                        <label className="block text-[11px] font-bold text-white/50 mb-2 uppercase tracking-widest">Preference 2 (Optional)</label>
                         <select 
                           value={formData.preferredCourse2Id}
                           onChange={e => setFormData({...formData, preferredCourse2Id: e.target.value})}
-                          className="w-full px-3 py-2 bg-[#1a1a24] border border-[#2a2a35] rounded-md text-sm text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                          className="w-full px-4 py-3 bg-black/40 border border-white/10 hover:border-white/20 rounded-xl text-sm text-white focus:outline-none focus:border-white/40 transition-all backdrop-blur-md shadow-inner appearance-none"
                         >
-                          <option value="">Select a course...</option>
+                          <option value="" className="bg-zinc-900 text-white/50">Select a course...</option>
                           {courses.map((c: any) => (
-                            <option key={c.id} value={c.id}>{c.courseName} ({c.courseId})</option>
+                            <option key={c.id} value={c.id} className="bg-zinc-900">{c.courseName} ({c.courseId})</option>
                           ))}
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Preference 3 (Optional)</label>
+                        <label className="block text-[11px] font-bold text-white/50 mb-2 uppercase tracking-widest">Preference 3 (Optional)</label>
                         <select 
                           value={formData.preferredCourse3Id}
                           onChange={e => setFormData({...formData, preferredCourse3Id: e.target.value})}
-                          className="w-full px-3 py-2 bg-[#1a1a24] border border-[#2a2a35] rounded-md text-sm text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                          className="w-full px-4 py-3 bg-black/40 border border-white/10 hover:border-white/20 rounded-xl text-sm text-white focus:outline-none focus:border-white/40 transition-all backdrop-blur-md shadow-inner appearance-none"
                         >
-                          <option value="">Select a course...</option>
+                          <option value="" className="bg-zinc-900 text-white/50">Select a course...</option>
                           {courses.map((c: any) => (
-                            <option key={c.id} value={c.id}>{c.courseName} ({c.courseId})</option>
+                            <option key={c.id} value={c.id} className="bg-zinc-900">{c.courseName} ({c.courseId})</option>
                           ))}
                         </select>
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-6 flex items-center justify-end gap-3">
+                  <div className="pt-8 flex items-center justify-end gap-4">
                     <button
                       type="button"
                       onClick={onClose}
-                      className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                      className="px-5 py-2.5 text-sm font-semibold text-white/60 hover:text-white transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={loading}
-                      className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-md shadow-sm transition-colors disabled:opacity-50"
+                      className="px-8 py-2.5 bg-white text-black text-sm font-bold rounded-xl shadow-lg hover:bg-white/90 hover:-translate-y-0.5 hover:shadow-xl transition-all disabled:opacity-50 disabled:hover:translate-y-0"
                     >
                       {loading ? 'Saving...' : 'Save Student'}
                     </button>
