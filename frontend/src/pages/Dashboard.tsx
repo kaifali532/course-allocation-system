@@ -38,7 +38,6 @@ export default function Dashboard() {
     fetchStats();
   }, []);
 
-  // Mock trend data based on current date
   const trendData = Array.from({ length: 7 }).map((_, i) => ({
     date: format(subDays(new Date(), 6 - i), 'MMM dd'),
     allocations: Math.floor(Math.random() * 50) + 10,
@@ -51,18 +50,18 @@ export default function Dashboard() {
     { name: 'SC', value: 150 },
     { name: 'ST', value: 100 },
   ];
-  const PIE_COLORS = ['#818cf8', '#38bdf8', '#c084fc', '#f472b6'];
+  const PIE_COLORS = ['#6366f1', '#3b82f6', '#8b5cf6', '#ec4899'];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-[#0a0a0f]/90 backdrop-blur-xl border border-white/10 p-4 rounded-xl shadow-2xl">
-          <p className="text-white font-medium mb-2">{label}</p>
+        <div className="bg-[#1a1a24] border border-[#2a2a35] p-4 rounded-lg shadow-xl">
+          <p className="text-slate-200 font-semibold mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center gap-2 mt-1">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
               <span className="text-slate-400 text-sm">{entry.name}:</span>
-              <span className="text-white font-medium text-sm">{entry.value}</span>
+              <span className="text-slate-200 font-medium text-sm">{entry.value}</span>
             </div>
           ))}
         </div>
@@ -74,9 +73,8 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="relative w-16 h-16">
+        <div className="relative w-12 h-12">
           <div className="absolute inset-0 rounded-full border-t-2 border-indigo-500 animate-spin"></div>
-          <div className="absolute inset-2 rounded-full border-r-2 border-purple-500 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.7s' }}></div>
         </div>
       </div>
     );
@@ -91,90 +89,81 @@ export default function Dashboard() {
   };
 
   const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.3 } }
   };
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="space-y-8 pb-8">
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6 pb-8">
       
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Executive Overview</h1>
-          <p className="text-slate-400 mt-1">Real-time insights into system capacity and allocation health.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            System Optimal
-          </span>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Dashboard</h1>
+          <p className="text-slate-400 mt-1 text-sm">System capacity and allocation overview.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Students', value: stats.totalStudents, icon: Users, color: 'from-blue-500 to-indigo-500', trend: '+12%' },
-          { label: 'Active Courses', value: stats.totalCourses, icon: BookOpen, color: 'from-violet-500 to-purple-500', trend: '+4%' },
-          { label: 'Seat Utilization', value: `${stats.seatUtilization}%`, icon: Layers, color: 'from-pink-500 to-rose-500', trend: '+8%' },
-          { label: 'Pending Processing', value: stats.pendingApplications, icon: Clock, color: 'from-amber-500 to-orange-500', trend: '-2%' },
+          { label: 'Total Students', value: stats.totalStudents, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10', trend: '+12%' },
+          { label: 'Active Courses', value: stats.totalCourses, icon: BookOpen, color: 'text-violet-500', bg: 'bg-violet-500/10', trend: '+4%' },
+          { label: 'Seat Utilization', value: `${stats.seatUtilization}%`, icon: Layers, color: 'text-pink-500', bg: 'bg-pink-500/10', trend: '+8%' },
+          { label: 'Pending Processing', value: stats.pendingApplications, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500/10', trend: '-2%' },
         ].map((kpi, i) => {
           const Icon = kpi.icon;
           return (
-            <motion.div key={i} variants={item} className="glass-card rounded-2xl p-6 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform translate-x-4 -translate-y-4">
-                <Icon className="w-24 h-24 text-white" />
-              </div>
-              <div className="flex justify-between items-start mb-6">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-tr ${kpi.color} flex items-center justify-center shadow-lg ring-1 ring-white/20`}>
-                  <Icon className="w-6 h-6 text-white" />
+            <motion.div key={i} variants={item} className="solid-card p-5 relative overflow-hidden group">
+              <div className="flex justify-between items-start mb-4">
+                <div className={`w-10 h-10 rounded-lg ${kpi.bg} flex items-center justify-center`}>
+                  <Icon className={`w-5 h-5 ${kpi.color}`} />
                 </div>
-                <div className="flex items-center gap-1 text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md text-xs font-bold">
+                <div className="flex items-center gap-1 text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded text-[10px] font-bold">
                   <TrendingUp className="w-3 h-3" /> {kpi.trend}
                 </div>
               </div>
-              <h3 className="text-slate-400 font-medium text-sm uppercase tracking-wider">{kpi.label}</h3>
-              <p className="text-4xl font-bold text-white mt-1 tracking-tight">{kpi.value}</p>
+              <h3 className="text-slate-500 font-medium text-xs uppercase tracking-wider">{kpi.label}</h3>
+              <p className="text-3xl font-bold text-white mt-1 tracking-tight">{kpi.value}</p>
             </motion.div>
           )
         })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <motion.div variants={item} className="lg:col-span-2 glass-card rounded-2xl p-6">
+        <motion.div variants={item} className="lg:col-span-2 solid-card p-6">
           <div className="mb-6">
-            <h3 className="text-lg font-bold text-white">Application Volume</h3>
-            <p className="text-slate-400 text-sm">7-day rolling application and allocation processing rate.</p>
+            <h3 className="text-base font-bold text-white">Application Volume</h3>
+            <p className="text-slate-400 text-sm">7-day rolling application and allocation rate.</p>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorApplications" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#818cf8" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorAllocations" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#c084fc" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#c084fc" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#2a2a35" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="applications" name="Applications" stroke="#818cf8" strokeWidth={3} fillOpacity={1} fill="url(#colorApplications)" />
-                <Area type="monotone" dataKey="allocations" name="Allocations" stroke="#c084fc" strokeWidth={3} fillOpacity={1} fill="url(#colorAllocations)" />
+                <Area type="monotone" dataKey="applications" name="Applications" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorApplications)" />
+                <Area type="monotone" dataKey="allocations" name="Allocations" stroke="#8b5cf6" strokeWidth={2} fillOpacity={1} fill="url(#colorAllocations)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </motion.div>
 
-        <motion.div variants={item} className="glass-card rounded-2xl p-6">
+        <motion.div variants={item} className="solid-card p-6">
           <div className="mb-2">
-            <h3 className="text-lg font-bold text-white">Seat Demographics</h3>
+            <h3 className="text-base font-bold text-white">Seat Demographics</h3>
             <p className="text-slate-400 text-sm">Distribution by category.</p>
           </div>
-          <div className="h-[300px] w-full flex items-center justify-center relative">
+          <div className="h-[300px] w-full flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -183,7 +172,7 @@ export default function Dashboard() {
                   cy="50%"
                   innerRadius={70}
                   outerRadius={100}
-                  paddingAngle={5}
+                  paddingAngle={2}
                   dataKey="value"
                   stroke="none"
                 >
@@ -195,8 +184,6 @@ export default function Dashboard() {
                 <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px', color: '#94a3b8' }} />
               </PieChart>
             </ResponsiveContainer>
-            {/* Inner Glow inside donut */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-indigo-500/20 blur-2xl rounded-full pointer-events-none"></div>
           </div>
         </motion.div>
       </div>

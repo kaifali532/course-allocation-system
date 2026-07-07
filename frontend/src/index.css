@@ -4,41 +4,40 @@
 
 @layer base {
   :root {
-    /* Biotech Fantasy Colors */
-    --background: 230 40% 4%; /* Extremely dark charcoal/indigo base */
+    /* Premium Apple/Linear inspired Dark Theme */
+    --background: 240 10% 4%; /* Very dark, almost black */
     --foreground: 210 40% 98%;
 
-    --card: 230 30% 8%; /* Dark glass card base */
+    --card: 240 6% 10%; /* Solid dark card, clearly elevated from background */
     --card-foreground: 210 40% 98%;
 
-    --popover: 230 30% 8%;
+    --popover: 240 6% 10%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 260 100% 70%; /* Electric Violet */
+    --primary: 250 100% 65%; /* Elegant Purple/Indigo */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 220 100% 60%; /* Electric Blue */
+    --secondary: 240 6% 15%; /* Elevated neutral surface */
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 230 20% 15%;
+    --muted: 240 6% 15%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 280 100% 65%; /* Soft Pink/Purple */
+    --accent: 250 100% 65%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 230 20% 15%; /* Subtle dark border */
-    --input: 230 20% 15%;
-    --ring: 260 100% 70%; /* Violet ring */
+    --border: 240 6% 15%; /* Clear borders for separation */
+    --input: 240 6% 15%;
+    --ring: 250 100% 65%;
 
-    --radius: 1.25rem; /* Larger, smoother corners */
+    --radius: 0.75rem; /* Clean, modern radius (not too round) */
   }
 
-  /* Force dark mode entirely since Biotech Fantasy is a dark aesthetic */
   .dark {
-    /* Same as root */
+    /* Root values are already dark mode optimized */
   }
 }
 
@@ -48,90 +47,58 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Immersive Animated Background */
-    background-color: hsl(230, 40%, 4%);
-    background-image: 
-      radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 25%),
-      radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
-    background-attachment: fixed;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    background-color: hsl(240, 10%, 4%);
+  }
+
+  /* Typography Utilities */
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-white tracking-tight font-semibold;
   }
 
   .fade-in {
-    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: fadeIn 0.4s ease-out forwards;
   }
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Biotech Animated Mesh Orbs */
-  .orb-1, .orb-2, .orb-3 {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(120px);
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.6;
-    animation: float 20s ease-in-out infinite alternate;
+  /* Solid Premium Cards with clear elevation */
+  .solid-card {
+    @apply bg-[#121218] border border-[#22222a] shadow-lg rounded-xl transition-shadow duration-200;
+  }
+  
+  .solid-card:hover {
+    @apply shadow-xl border-[#2a2a35];
   }
 
-  .orb-1 {
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0) 70%);
-    width: 60vw;
-    height: 60vh;
-    top: -20vh;
-    left: -10vw;
+  /* Subtle Glass Overlays (only used when necessary) */
+  .subtle-glass {
+    @apply bg-[#121218]/80 backdrop-blur-md border border-[#22222a]/50;
   }
 
-  .orb-2 {
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(59, 130, 246, 0) 70%);
-    width: 50vw;
-    height: 50vh;
-    bottom: -10vh;
-    right: -10vw;
-    animation-delay: -5s;
+  /* Enterprise Table Styling */
+  .table-row-hover {
+    @apply hover:bg-[#1a1a24] transition-colors duration-150;
   }
 
-  .orb-3 {
-    background: radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, rgba(236, 72, 153, 0) 70%);
-    width: 40vw;
-    height: 40vh;
-    top: 40vh;
-    left: 30vw;
-    animation-delay: -10s;
+  .table-header {
+    @apply bg-[#121218] text-slate-400 font-semibold text-xs tracking-wider uppercase border-b border-[#22222a];
   }
 
-  @keyframes float {
-    0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(5%, 5%) scale(1.05); }
-    100% { transform: translate(-5%, -5%) scale(0.95); }
-  }
-
-  /* Glassmorphism Panel Utilities */
-  .glass-panel {
-    @apply bg-white/5 dark:bg-slate-900/40 backdrop-blur-xl border border-white/10 shadow-2xl;
-  }
-
-  .glass-card {
-    @apply bg-white/5 dark:bg-slate-900/30 backdrop-blur-md border border-white/10 shadow-xl transition-all duration-300;
-  }
-
-  .glass-card:hover {
-    @apply bg-white/10 dark:bg-slate-900/50 border-white/20 shadow-2xl transform -translate-y-1;
-  }
-
-  /* Sleek Scrollbar */
+  /* Scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-white/10 rounded-full;
+    @apply bg-[#2a2a35] rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-white/20;
+    @apply bg-[#3a3a45];
   }
 }

@@ -1,95 +1,159 @@
 import { useEffect, useState, useMemo } from 'react';
 import { api } from '../services/api';
 import { DataTable } from '../components/DataTable';
-import { Plus, User } from 'lucide-react';
+import { StudentModal } from '../components/StudentModal';
+import { Plus, User, Edit2, Trash2 } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 
 export default function Students() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<any>(null);
+
+  const fetchStudents = async () => {
+    try {
+      const res = await api.get('/students');
+      setStudents(res.data.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const res = await api.get(`/students`);
-        setStudents(res.data.data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchStudents();
   }, []);
 
-  const columns = useMemo<ColumnDef<any>[]>(() => [
-    {
-      accessorKey: 'studentId',
-      header: 'Student ID',
-      cell: info => <span className="font-medium text-slate-900 dark:text-slate-100">{info.getValue() as string}</span>,
-    },
-    {
-      accessorKey: 'fullName',
-      header: 'Full Name',
-      cell: info => (
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-semibold text-xs border border-indigo-200 dark:border-indigo-800">
-            {(info.getValue() as string).charAt(0)}
-          </div>
-          <span className="font-medium">{info.getValue() as string}</span>
-        </div>
-      ),
-    },
-    {
-      accessorKey: 'marks',
-      header: 'Marks',
-    },
-    {
-      accessorKey: 'category',
-      header: 'Category',
-      cell: info => (
-        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-          {info.getValue() as string}
-        </span>
-      )
-    },
-    {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: info => {
-        const status = info.getValue() as string;
-        return (
-          <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${
-            status === 'ALLOCATED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' :
-            status === 'REJECTED' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20' :
-            'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
-          }`}>
-            {status}
-          </span>
-        );
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this student?')) {
+      try {
+        await api.delete(`/students/${id}`);
+        fetchStudents();
+      } catch (error) {
+        console.error('Failed to delete student', error);
+        alert('Failed to delete student');
       }
-    },
-  ], []);
+    }
+  };
+
+  const columns = useMemo<ColumnDef<any, any>[]>(
+    () => [
+      {
+        accessorKey: 'studentId',
+        header: 'ID',
+        cell: (info) => <span className="font-medium text-slate-200">{info.getValue()}</span>,
+      },
+      {
+        accessorKey: 'fullName',
+        header: 'Full Name',
+        cell: (info) => (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded bg-indigo-500/10 flex items-center justify-center">
+              <User className="w-4 h-4 text-indigo-400" />
+            </div>
+            <span className="font-semibold text-slate-200">{info.getValue()}</span>
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'category',
+        header: 'Category',
+        cell: (info) => {
+          const val = info.getValue();
+          let color = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+          if (val === 'OBC') color = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+          if (val === 'SC') color = 'bg-violet-500/10 text-violet-400 border-violet-500/20';
+          if (val === 'ST') color = 'bg-pink-500/10 text-pink-400 border-pink-500/20';
+          return (
+            <span className={`px-2.5 py-1 rounded text-xs font-semibold border ${color}`}>
+              {val}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: 'marks',
+        header: 'Marks',
+        cell: (info) => (
+          <div className="flex items-center gap-2">
+            <div className="w-16 h-2 bg-[#22222a] rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-emerald-500 rounded-full" 
+                style={{ width: `${Math.min(100, Number(info.getValue()))}%` }}
+              />
+            </div>
+            <span className="text-slate-300 font-medium">{info.getValue()}%</span>
+          </div>
+        ),
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: (info) => {
+          const student = info.row.original;
+          return (
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => { setEditingStudent(student); setIsModalOpen(true); }}
+                className="p-1.5 rounded bg-[#1a1a24] text-slate-400 hover:text-indigo-400 hover:bg-[#22222a] transition-colors border border-[#2a2a35]"
+                title="Edit Student"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => handleDelete(student.id)}
+                className="p-1.5 rounded bg-[#1a1a24] text-slate-400 hover:text-red-400 hover:bg-[#22222a] transition-colors border border-[#2a2a35]"
+                title="Delete Student"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          );
+        }
+      }
+    ],
+    []
+  );
 
   return (
     <div className="space-y-6 fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Students</h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage student applications and details.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Student Directory</h1>
+          <p className="text-slate-400 mt-1 text-sm">Manage student profiles, categories, and entrance marks.</p>
         </div>
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm shadow-indigo-500/20">
-          <Plus className="w-4 h-4" /> Add Student
+        <button 
+          onClick={() => { setEditingStudent(null); setIsModalOpen(true); }}
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
+        >
+          <Plus className="w-4 h-4" />
+          Add Student
         </button>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-        </div>
-      ) : (
-        <DataTable columns={columns} data={students} searchKey="fullName" placeholder="Search students by name or ID..." />
-      )}
+      <div className="solid-card p-6">
+        {loading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+          </div>
+        ) : (
+          <DataTable 
+            columns={columns} 
+            data={students} 
+            searchKey="fullName" 
+            placeholder="Search students by name..."
+          />
+        )}
+      </div>
+
+      <StudentModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={fetchStudents}
+        student={editingStudent}
+      />
     </div>
   );
 }
