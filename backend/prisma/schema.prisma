@@ -1,0 +1,93 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Student {
+  id                 String      @id @default(uuid())
+  studentId          String      @unique
+  fullName           String
+  email              String      @unique
+  phone              String
+  gender             String
+  marks              Float
+  category           String
+  applicationDate    DateTime
+  
+  preferredCourse1Id String
+  preferredCourse2Id String?
+  preferredCourse3Id String?
+  
+  status             String      @default("PENDING") // PENDING, ALLOCATED, REJECTED
+  
+  allocation         Allocation?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  pref1              Course      @relation("Pref1", fields: [preferredCourse1Id], references: [id])
+  pref2              Course?     @relation("Pref2", fields: [preferredCourse2Id], references: [id])
+  pref3              Course?     @relation("Pref3", fields: [preferredCourse3Id], references: [id])
+}
+
+model Course {
+  id              String       @id @default(uuid())
+  courseId        String       @unique
+  courseName      String
+  description     String?
+  department      String
+  totalSeats      Int
+  generalSeats    Int
+  obcSeats        Int
+  scSeats         Int
+  stSeats         Int
+  availableSeats  Int
+  allocatedSeats  Int          @default(0)
+  
+  allocations     Allocation[]
+  pref1Students   Student[]    @relation("Pref1")
+  pref2Students   Student[]    @relation("Pref2")
+  pref3Students   Student[]    @relation("Pref3")
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Allocation {
+  id             String   @id @default(uuid())
+  studentId      String   @unique
+  courseId       String
+  allocatedCat   String
+  preferenceNum  Int
+  allocationDate DateTime @default(now())
+
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course         Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String
+  details   String
+  userId    String?
+  createdAt DateTime @default(now())
+}
+
+model AiQueryHistory {
+  id        String   @id @default(uuid())
+  query     String
+  response  String
+  createdAt DateTime @default(now())
+}
