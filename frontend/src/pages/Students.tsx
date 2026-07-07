@@ -5,12 +5,19 @@ import { StudentModal } from '../components/StudentModal';
 import { Plus, User, Edit2, Trash2 } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import toast from 'react-hot-toast';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 export default function Students() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<any>(null);
+  
+  // Confirm Dialog State
+  const [confirmState, setConfirmState] = useState<{
+    isOpen: boolean;
+    studentId: string | null;
+  }>({ isOpen: false, studentId: null });
 
   const fetchStudents = async () => {
     try {
@@ -27,16 +34,15 @@ export default function Students() {
     fetchStudents();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this student?')) {
-      try {
-        await api.delete(`/students/${id}`);
-        toast.success('Student deleted successfully');
-        fetchStudents();
-      } catch (error: any) {
-        console.error('Failed to delete student', error);
-        toast.error(error?.response?.data?.message || 'Failed to delete student');
-      }
+  const handleDelete = async () => {
+    if (!confirmState.studentId) return;
+    try {
+      await api.delete(`/students/${confirmState.studentId}`);
+      toast.success('Student deleted successfully');
+      fetchStudents();
+    } catch (error: any) {
+      console.error('Failed to delete student', error);
+      toast.error(error?.response?.data?.message || 'Failed to delete student');
     }
   };
 
@@ -105,7 +111,7 @@ export default function Students() {
                 <Edit2 className="w-4 h-4" />
               </button>
               <button 
-                onClick={() => handleDelete(student.id)}
+                onClick={() => setConfirmState({ isOpen: true, studentId: student.id })}
                 className="p-1.5 rounded bg-[#1a1a24] text-slate-400 hover:text-red-400 hover:bg-[#22222a] transition-colors border border-[#2a2a35]"
                 title="Delete Student"
               >
@@ -155,6 +161,16 @@ export default function Students() {
         onClose={() => setIsModalOpen(false)}
         onSuccess={fetchStudents}
         student={editingStudent}
+      />
+
+      <ConfirmDialog 
+        isOpen={confirmState.isOpen}
+        title="Delete Student"
+        message="Are you sure you want to delete this student? This action cannot be undone and will remove any allocations associated with them."
+        confirmText="Delete Student"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmState({ isOpen: false, studentId: null })}
+        isDestructive={true}
       />
     </div>
   );

@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { api } from '../services/api';
 import { Network, Play, RotateCcw, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 export default function Allocation() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [confirmState, setConfirmState] = useState<{ isOpen: boolean; action: 'run' | 'reset' | null }>({ isOpen: false, action: null });
 
   const runAllocation = async () => {
-    if (!confirm('This will run the allocation engine. Are you sure?')) return;
     setLoading(true);
     try {
       const res = await api.post('/allocations/run');
@@ -22,7 +23,6 @@ export default function Allocation() {
   };
 
   const resetAllocation = async () => {
-    if (!confirm('This will wipe all current allocations. Are you sure?')) return;
     setLoading(true);
     try {
       await api.post('/allocations/reset');
@@ -57,7 +57,7 @@ export default function Allocation() {
               <p className="text-sm text-slate-500 mb-6">Executes the allocation algorithm on all pending students. This process enforces all business rules.</p>
             </div>
             <button 
-              onClick={runAllocation}
+              onClick={() => setConfirmState({ isOpen: true, action: 'run' })}
               disabled={loading}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-lg transition-all shadow-sm active:scale-[0.98]"
             >
@@ -73,7 +73,7 @@ export default function Allocation() {
               <p className="text-sm text-red-500/80 dark:text-red-400/80 mb-6">Wipes all current allocations and sets all students back to pending status. Use with caution.</p>
             </div>
             <button 
-              onClick={resetAllocation}
+              onClick={() => setConfirmState({ isOpen: true, action: 'reset' })}
               disabled={loading}
               className="w-full bg-white dark:bg-slate-900 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 font-medium py-2.5 rounded-lg transition-all active:scale-[0.98]"
             >
@@ -96,6 +96,20 @@ export default function Allocation() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog 
+        isOpen={confirmState.isOpen}
+        title={confirmState.action === 'run' ? 'Run Engine' : 'Reset Engine'}
+        message={
+          confirmState.action === 'run' 
+            ? 'Are you sure you want to run the allocation engine? This will recompute all allocations.'
+            : 'Are you sure you want to wipe all current allocations? This action cannot be undone.'
+        }
+        confirmText={confirmState.action === 'run' ? 'Run' : 'Reset'}
+        onConfirm={confirmState.action === 'run' ? runAllocation : resetAllocation}
+        onCancel={() => setConfirmState({ isOpen: false, action: null })}
+        isDestructive={confirmState.action === 'reset'}
+      />
     </div>
   );
 }

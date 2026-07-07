@@ -4,6 +4,7 @@ import { DataTable } from '../components/DataTable';
 import { Download, CheckCircle, FileText, Loader2 } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 export default function Allocations() {
   const [allocations, setAllocations] = useState([]);
@@ -11,6 +12,7 @@ export default function Allocations() {
   const [runningEngine, setRunningEngine] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const fetchAllocations = async () => {
     try {
@@ -29,7 +31,6 @@ export default function Allocations() {
   }, []);
 
   const handleRunEngine = async () => {
-    if (!confirm('Are you sure you want to run the allocation engine? This will recompute all allocations based on current student preferences and course capacities.')) return;
     
     setRunningEngine(true);
     setError('');
@@ -110,7 +111,7 @@ export default function Allocations() {
             <FileText className="w-4 h-4" /> Export CSV
           </button>
           <button 
-            onClick={handleRunEngine}
+            onClick={() => setIsConfirmOpen(true)}
             disabled={runningEngine}
             className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-sm font-medium transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -141,6 +142,16 @@ export default function Allocations() {
           <DataTable columns={columns} data={allocations} searchKey="studentName" placeholder="Search allocations by student name..." />
         )}
       </div>
+
+      <ConfirmDialog 
+        isOpen={isConfirmOpen}
+        title="Run Allocation Engine"
+        message="Are you sure you want to run the allocation engine? This will wipe the current allocations and recompute everything based on current student preferences, categories, and course capacities."
+        confirmText="Run Engine"
+        onConfirm={handleRunEngine}
+        onCancel={() => setIsConfirmOpen(false)}
+        isDestructive={false}
+      />
     </div>
   );
 }

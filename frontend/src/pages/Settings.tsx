@@ -1,197 +1,127 @@
 import { useState } from 'react';
-import { Save, User, Building2, Bell, Shield, Palette, Sparkles } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { User, Bell, Shield, Paintbrush, Building2, Bot, Sliders, Info, CreditCard } from 'lucide-react';
+
+const tabs = [
+  { id: 'profile', name: 'Profile Settings', icon: User },
+  { id: 'account', name: 'Account Settings', icon: CreditCard },
+  { id: 'security', name: 'Security', icon: Shield },
+  { id: 'theme', name: 'Theme', icon: Paintbrush },
+  { id: 'notifications', name: 'Notifications', icon: Bell },
+  { id: 'university', name: 'University Preferences', icon: Building2 },
+  { id: 'ai', name: 'AI Configuration', icon: Bot },
+  { id: 'allocation', name: 'Allocation Rules', icon: Sliders },
+  { id: 'system', name: 'System Information', icon: Info },
+];
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = () => {
-    setSaving(true);
-    // Mock save delay
-    setTimeout(() => {
-      setSaving(false);
-      toast.success('Settings saved successfully');
-    }, 800);
-  };
 
   return (
-    <div className="space-y-6 fade-in max-w-5xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">Settings</h1>
-        <p className="text-slate-400 mt-1 text-sm">Manage your account, workspace, and system preferences.</p>
+    <div className="max-w-6xl mx-auto h-[calc(100vh-8rem)] flex bg-white dark:bg-[#111118] border border-slate-200 dark:border-[#2b2b30] rounded-xl overflow-hidden shadow-sm fade-in">
+      {/* Sidebar Navigation */}
+      <div className="w-64 bg-slate-50 dark:bg-[#16161d] border-r border-slate-200 dark:border-[#2b2b30] flex flex-col h-full overflow-y-auto custom-scrollbar">
+        <div className="p-4">
+          <h2 className="text-[13px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Settings</h2>
+          <div className="space-y-0.5">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium transition-colors ${
+                    isActive
+                      ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#22222a] hover:text-slate-900 dark:hover:text-slate-200'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`} />
+                  {tab.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Sidebar Nav */}
-        <div className="w-full md:w-64 space-y-1">
-          <button 
-            onClick={() => setActiveTab('profile')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'profile' ? 'bg-[#22222a] text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-[#1a1a24]'}`}
-          >
-            <User className="w-4 h-4" /> Profile
-          </button>
-          <button 
-            onClick={() => setActiveTab('workspace')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'workspace' ? 'bg-[#22222a] text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-[#1a1a24]'}`}
-          >
-            <Building2 className="w-4 h-4" /> Workspace
-          </button>
-          <button 
-            onClick={() => setActiveTab('ai')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'ai' ? 'bg-[#22222a] text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-[#1a1a24]'}`}
-          >
-            <Sparkles className="w-4 h-4" /> AI Assistant
-          </button>
-          <button 
-            onClick={() => setActiveTab('appearance')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'appearance' ? 'bg-[#22222a] text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-[#1a1a24]'}`}
-          >
-            <Palette className="w-4 h-4" /> Appearance
-          </button>
-          <button 
-            onClick={() => setActiveTab('notifications')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'notifications' ? 'bg-[#22222a] text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-[#1a1a24]'}`}
-          >
-            <Bell className="w-4 h-4" /> Notifications
-          </button>
-          <button 
-            onClick={() => setActiveTab('security')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'security' ? 'bg-[#22222a] text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-[#1a1a24]'}`}
-          >
-            <Shield className="w-4 h-4" /> Security
-          </button>
-        </div>
-
-        {/* Content Area */}
-        <div className="flex-1 bg-[#111118] border border-[#22222a] rounded-xl p-6 md:p-8">
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-[#111118] p-8">
+        <div className="max-w-2xl">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+            {tabs.find(t => t.id === activeTab)?.name}
+          </h1>
           
           {activeTab === 'profile' && (
-            <div className="space-y-6 fade-in">
-              <div>
-                <h2 className="text-lg font-semibold text-white">Profile Settings</h2>
-                <p className="text-sm text-slate-400 mt-1">Update your personal information and email address.</p>
-              </div>
-              <div className="border-t border-[#22222a] pt-6 space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-300">First Name</label>
-                    <input type="text" defaultValue="Admin" className="w-full bg-[#1a1a24] border border-[#2a2a35] rounded-md px-3 py-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-300">Last Name</label>
-                    <input type="text" defaultValue="User" className="w-full bg-[#1a1a24] border border-[#2a2a35] rounded-md px-3 py-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors" />
-                  </div>
-                  <div className="space-y-1.5 md:col-span-2">
-                    <label className="text-sm font-medium text-slate-300">Email Address</label>
-                    <input type="email" defaultValue="admin@university.edu" className="w-full bg-[#1a1a24] border border-[#2a2a35] rounded-md px-3 py-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors" />
-                  </div>
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="flex items-center gap-6 pb-6 border-b border-slate-200 dark:border-[#2b2b30]">
+                <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-[#22222a] border border-slate-200 dark:border-[#38383f] flex items-center justify-center">
+                  <User className="w-8 h-8 text-slate-400" />
+                </div>
+                <div>
+                  <button className="px-4 py-2 bg-white dark:bg-[#22222a] border border-slate-200 dark:border-[#38383f] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#2a2a35] rounded-md text-[13px] font-medium transition-colors shadow-sm">
+                    Upload Avatar
+                  </button>
+                  <p className="text-[12px] text-slate-500 mt-2">JPG, GIF or PNG. 1MB max.</p>
                 </div>
               </div>
-            </div>
-          )}
-
-          {activeTab === 'workspace' && (
-            <div className="space-y-6 fade-in">
-              <div>
-                <h2 className="text-lg font-semibold text-white">Workspace Configuration</h2>
-                <p className="text-sm text-slate-400 mt-1">Manage university details and academic year settings.</p>
-              </div>
-              <div className="border-t border-[#22222a] pt-6 space-y-5">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-slate-300">University Name</label>
-                  <input type="text" defaultValue="University System" className="w-full bg-[#1a1a24] border border-[#2a2a35] rounded-md px-3 py-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors" />
+                  <label className="text-[13px] font-medium text-slate-700 dark:text-slate-300">First Name</label>
+                  <input type="text" defaultValue="Admin" className="w-full px-3 py-2 bg-white dark:bg-[#111118] border border-slate-300 dark:border-[#38383f] rounded-md text-[13px] text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500" />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-slate-300">Academic Year</label>
-                  <select className="w-full bg-[#1a1a24] border border-[#2a2a35] rounded-md px-3 py-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors">
-                    <option>2026-2027</option>
-                    <option>2025-2026</option>
-                  </select>
+                  <label className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Last Name</label>
+                  <input type="text" defaultValue="User" className="w-full px-3 py-2 bg-white dark:bg-[#111118] border border-slate-300 dark:border-[#38383f] rounded-md text-[13px] text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500" />
                 </div>
               </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Email Address</label>
+                <input type="email" defaultValue="admin@university.edu" className="w-full px-3 py-2 bg-white dark:bg-[#111118] border border-slate-300 dark:border-[#38383f] rounded-md text-[13px] text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500" />
+              </div>
+              <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-[13px] font-medium transition-colors shadow-sm mt-4">
+                Save Changes
+              </button>
             </div>
           )}
 
           {activeTab === 'ai' && (
-            <div className="space-y-6 fade-in">
-              <div>
-                <h2 className="text-lg font-semibold text-white">AI Assistant Configuration</h2>
-                <p className="text-sm text-slate-400 mt-1">Configure the generative AI models used for allocation insights.</p>
-              </div>
-              <div className="border-t border-[#22222a] pt-6 space-y-5">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-slate-300">AI Provider</label>
-                  <select className="w-full bg-[#1a1a24] border border-[#2a2a35] rounded-md px-3 py-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors">
-                    <option>Google Gemini (Current)</option>
-                    <option>OpenAI GPT-4 (Coming Soon)</option>
-                    <option>Anthropic Claude (Coming Soon)</option>
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-slate-300 flex items-center justify-between">
-                    API Key
-                    <span className="text-xs text-indigo-400 font-normal">Manage in Vercel Environment Variables</span>
-                  </label>
-                  <input type="password" value="************************" readOnly className="w-full bg-[#1a1a24] opacity-70 cursor-not-allowed border border-[#2a2a35] rounded-md px-3 py-2 text-sm text-slate-400 outline-none" />
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="p-4 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-lg flex items-start gap-3">
+                <Bot className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-0.5 shrink-0" />
+                <div>
+                  <h3 className="text-[13px] font-semibold text-indigo-900 dark:text-indigo-300">Gemini Pro Integration Active</h3>
+                  <p className="text-[12px] text-indigo-700/80 dark:text-indigo-400/80 mt-1">The system is currently using `gemini-1.5-flash-latest` for natural language querying and data analysis.</p>
                 </div>
               </div>
-            </div>
-          )}
-
-          {activeTab === 'appearance' && (
-            <div className="space-y-6 fade-in">
-              <div>
-                <h2 className="text-lg font-semibold text-white">Appearance</h2>
-                <p className="text-sm text-slate-400 mt-1">Customize the interface theme and density.</p>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Google AI API Key</label>
+                <input type="password" defaultValue="*************************" className="w-full px-3 py-2 bg-white dark:bg-[#111118] border border-slate-300 dark:border-[#38383f] rounded-md text-[13px] text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500" />
+                <p className="text-[11px] text-slate-500">Stored securely in environment variables.</p>
               </div>
-              <div className="border-t border-[#22222a] pt-6 space-y-5">
-                <div className="space-y-3">
-                  <label className="text-sm font-medium text-slate-300">Theme</label>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="border-2 border-indigo-500 rounded-lg p-3 bg-[#111118] cursor-pointer flex flex-col items-center gap-2">
-                      <div className="w-full h-12 bg-[#0a0a0f] rounded border border-[#22222a]"></div>
-                      <span className="text-xs font-medium text-white">Dark Mode</span>
-                    </div>
-                    <div className="border border-[#2a2a35] rounded-lg p-3 bg-[#111118] cursor-not-allowed opacity-50 flex flex-col items-center gap-2">
-                      <div className="w-full h-12 bg-white rounded border border-gray-200"></div>
-                      <span className="text-xs font-medium text-white">Light (Beta)</span>
-                    </div>
-                    <div className="border border-[#2a2a35] rounded-lg p-3 bg-[#111118] cursor-not-allowed opacity-50 flex flex-col items-center gap-2">
-                      <div className="w-full h-12 bg-gradient-to-r from-[#0a0a0f] to-white rounded border border-[#22222a]"></div>
-                      <span className="text-xs font-medium text-white">System</span>
-                    </div>
-                  </div>
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Default Model</label>
+                <select className="w-full px-3 py-2 bg-white dark:bg-[#111118] border border-slate-300 dark:border-[#38383f] rounded-md text-[13px] text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500">
+                  <option>Gemini 1.5 Flash (Recommended)</option>
+                  <option>Gemini 1.5 Pro</option>
+                  <option>Gemini 1.0 Pro</option>
+                </select>
               </div>
-            </div>
-          )}
-
-          {(activeTab === 'notifications' || activeTab === 'security') && (
-            <div className="space-y-6 fade-in flex items-center justify-center py-12 flex-col">
-              <Shield className="w-12 h-12 text-slate-600 mb-2" />
-              <h2 className="text-lg font-semibold text-white">Coming Soon</h2>
-              <p className="text-sm text-slate-400 mt-1 text-center max-w-sm">
-                These settings are currently managed by your organization's single sign-on provider.
-              </p>
-            </div>
-          )}
-
-          {/* Action Footer */}
-          {activeTab !== 'notifications' && activeTab !== 'security' && (
-            <div className="mt-8 pt-6 border-t border-[#22222a] flex justify-end">
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50"
-              >
-                {saving ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4" />
-                )}
-                Save Preferences
+              <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-[13px] font-medium transition-colors shadow-sm">
+                Update AI Configuration
               </button>
+            </div>
+          )}
+
+          {activeTab !== 'profile' && activeTab !== 'ai' && (
+            <div className="py-12 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-bottom-2 duration-300 border border-dashed border-slate-200 dark:border-[#38383f] rounded-xl">
+              <div className="w-12 h-12 bg-slate-100 dark:bg-[#22222a] rounded-full flex items-center justify-center mb-3">
+                <Sliders className="w-6 h-6 text-slate-400" />
+              </div>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Module under construction</h3>
+              <p className="text-[13px] text-slate-500 max-w-sm mt-1">
+                The {tabs.find(t => t.id === activeTab)?.name} panel is currently being developed for the next release.
+              </p>
             </div>
           )}
         </div>

@@ -5,12 +5,14 @@ import { CourseModal } from '../components/CourseModal';
 import { Plus, Book, Edit2, Trash2 } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import toast from 'react-hot-toast';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<any>(null);
+  const [confirmState, setConfirmState] = useState<{ isOpen: boolean; courseId: string | null }>({ isOpen: false, courseId: null });
 
   const fetchCourses = async () => {
     try {
@@ -27,16 +29,15 @@ export default function Courses() {
     fetchCourses();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this course? This might fail if students have allocations to it.')) {
-      try {
-        await api.delete(`/courses/${id}`);
-        toast.success('Course deleted successfully');
-        fetchCourses();
-      } catch (error: any) {
-        console.error('Failed to delete course', error);
-        toast.error(error?.response?.data?.message || 'Failed to delete course');
-      }
+  const handleDelete = async () => {
+    if (!confirmState.courseId) return;
+    try {
+      await api.delete(`/courses/${confirmState.courseId}`);
+      toast.success('Course deleted successfully');
+      fetchCourses();
+    } catch (error: any) {
+      console.error('Failed to delete course', error);
+      toast.error(error?.response?.data?.message || 'Failed to delete course');
     }
   };
 
@@ -89,7 +90,7 @@ export default function Courses() {
                 <Edit2 className="w-4 h-4" />
               </button>
               <button 
-                onClick={() => handleDelete(course.id)}
+                onClick={() => setConfirmState({ isOpen: true, courseId: course.id })}
                 className="p-1.5 rounded bg-[#1a1a24] text-slate-400 hover:text-red-400 hover:bg-[#22222a] transition-colors border border-[#2a2a35]"
                 title="Delete Course"
               >
@@ -139,6 +140,16 @@ export default function Courses() {
         onClose={() => setIsModalOpen(false)}
         onSuccess={fetchCourses}
         course={editingCourse}
+      />
+      
+      <ConfirmDialog 
+        isOpen={confirmState.isOpen}
+        title="Delete Course"
+        message="Are you sure you want to delete this course? This might fail if students currently have allocations to it."
+        confirmText="Delete Course"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmState({ isOpen: false, courseId: null })}
+        isDestructive={true}
       />
     </div>
   );
