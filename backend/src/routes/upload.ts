@@ -7,14 +7,30 @@ import { authenticate } from '../middlewares/auth';
 
 const router = Router();
 
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '../../public/uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Use /tmp on serverless (Vercel), otherwise use local public/uploads
+const isServerless = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME;
+const uploadDir = isServerless
+  ? path.join('/tmp', 'uploads')
+  : path.join(__dirname, '../../public/uploads');
+
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn('Could not create upload directory:', err);
 }
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    // Ensure dir exists at request time too (safety for serverless cold starts)
+    try {
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+    } catch (e) {
+      // ignore
+    }
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
