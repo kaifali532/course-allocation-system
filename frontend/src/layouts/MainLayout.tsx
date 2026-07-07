@@ -1,5 +1,5 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, BookOpen, Settings, MessageSquare, LogOut, Network, FileText } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, MessageSquare, LogOut, Network, FileText } from 'lucide-react';
 
 export default function MainLayout() {
   const navigate = useNavigate();
