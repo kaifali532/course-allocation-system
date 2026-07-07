@@ -18,6 +18,10 @@ app.use('/api', routes);
 
 app.use(errorHandler);
 
-app.listen(env.PORT, () => {
-  logger.info(`Server is running on port ${env.PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(env.PORT, () => {
+    logger.info(`Server is running on port ${env.PORT}`);
+  });
+}
+
+export default app;
