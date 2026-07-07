@@ -11,13 +11,27 @@ export const askAI = async (req: Request, res: Response) => {
     const response = await aiProvider.askQuestion(query);
 
     // Store history
-    await prisma.aiQueryHistory.create({
-      data: { query, response }
-    });
+    try {
+      await prisma.aiQueryHistory.create({
+        data: { query, response }
+      });
+    } catch (dbErr) {
+      console.warn('[AI] Could not save to history:', dbErr);
+    }
 
     res.status(200).json({ success: true, response });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[AI Controller] Error:', error.message);
+    
+    // Map error types to appropriate HTTP status codes
+    let statusCode = 500;
+    if (error.message?.startsWith('MISSING_API_KEY')) statusCode = 503;
+    else if (error.message?.startsWith('INVALID_API_KEY')) statusCode = 401;
+    else if (error.message?.startsWith('PERMISSION_DENIED')) statusCode = 403;
+    else if (error.message?.startsWith('MODEL_NOT_FOUND')) statusCode = 404;
+    else if (error.message?.startsWith('RATE_LIMITED')) statusCode = 429;
+    
+    res.status(statusCode).json({ success: false, message: error.message });
   }
 };
 

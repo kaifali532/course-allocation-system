@@ -10,26 +10,35 @@ export class GeminiProvider implements AIProvider {
   private ai: GoogleGenerativeAI | null = null;
   
   constructor() {
-    if (env.GEMINI_API_KEY) {
-      this.ai = new GoogleGenerativeAI(env.GEMINI_API_KEY);
+    const key = env.GEMINI_API_KEY;
+    if (key) {
+      console.log(`[AI] Gemini API key detected (${key.substring(0, 6)}...${key.substring(key.length - 4)})`);
+      this.ai = new GoogleGenerativeAI(key);
+    } else {
+      console.warn('[AI] WARNING: No GEMINI_API_KEY found in environment. AI Assistant will not work.');
     }
   }
 
   async askQuestion(query: string): Promise<string> {
     if (!this.ai) {
-      return "**Setup Required**: The AI Assistant requires a `GEMINI_API_KEY` environment variable. Please generate an API key from Google AI Studio and add it to your environment variables to enable this feature.";
+      throw new Error('MISSING_API_KEY: The GEMINI_API_KEY environment variable is not set. Please add it to your .env file or Vercel environment variables.');
     }
 
-    // Fallback to gemini-1.5-flash or gemini-pro if the standard name throws 404 in some regions
-    const model = this.ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // Use gemini-2.0-flash — the current recommended fast model
+    const model = this.ai.getGenerativeModel({ model: 'gemini-2.0-flash' });
     
     // RAG approach: fetch DB stats to provide context so it doesn't hallucinate
-    const [totalStudents, totalCourses, allocatedCount, unallocatedCount] = await Promise.all([
-      prisma.student.count(),
-      prisma.course.count(),
-      prisma.student.count({ where: { status: 'ALLOCATED' } }),
-      prisma.student.count({ where: { status: 'REJECTED' } })
-    ]);
+    let totalStudents = 0, totalCourses = 0, allocatedCount = 0, unallocatedCount = 0;
+    try {
+      [totalStudents, totalCourses, allocatedCount, unallocatedCount] = await Promise.all([
+        prisma.student.count(),
+        prisma.course.count(),
+        prisma.student.count({ where: { status: 'ALLOCATED' } }),
+        prisma.student.count({ where: { status: 'REJECTED' } })
+      ]);
+    } catch (dbErr) {
+      console.warn('[AI] Could not fetch DB stats for context:', dbErr);
+    }
 
     const context = `
     You are an AI Assistant for a University Course Allocation System.
@@ -43,17 +52,34 @@ export class GeminiProvider implements AIProvider {
     `;
 
     const prompt = `${context}\n\nUser Question: ${query}`;
+    
     try {
       const result = await model.generateContent(prompt);
       return result.response.text();
     } catch (error: any) {
-      console.error('AI Generation Error:', error);
-      return "The AI provider is currently unavailable or misconfigured. Please check your API key in Settings or try again later.";
+      console.error('[AI] Generation Error:', error?.status, error?.message);
+      
+      const status = error?.status || error?.response?.status || error?.code;
+      
+      if (status === 401 || error?.message?.includes('API_KEY_INVALID') || error?.message?.includes('401')) {
+        throw new Error('INVALID_API_KEY: The provided Gemini API key is invalid. Please check your API key in Settings.');
+      }
+      if (status === 403 || error?.message?.includes('PERMISSION_DENIED') || error?.message?.includes('403')) {
+        throw new Error('PERMISSION_DENIED: The API key does not have permission to use this model. Check your Google Cloud project settings.');
+      }
+      if (status === 404 || error?.message?.includes('not found') || error?.message?.includes('404')) {
+        throw new Error('MODEL_NOT_FOUND: The AI model "gemini-2.0-flash" is not available. This may be a regional restriction.');
+      }
+      if (status === 429 || error?.message?.includes('RATE_LIMIT') || error?.message?.includes('429')) {
+        throw new Error('RATE_LIMITED: Too many AI requests. Please wait a moment and try again.');
+      }
+      
+      throw new Error(`AI_ERROR: ${error?.message || 'Unknown error occurred while generating response.'}`);
     }
   }
 }
 
-// Factory or DI for easy swapping to OpenAI later
+// Factory for easy swapping to OpenAI later
 export const getAIProvider = (): AIProvider => {
   return new GeminiProvider();
 };
