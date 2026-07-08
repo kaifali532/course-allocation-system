@@ -11,6 +11,11 @@ export class GeminiProvider implements AIProvider {
   
   constructor() {
     const key = env.GEMINI_API_KEY;
+    const sdkVersion = require('@google/generative-ai/package.json').version;
+    console.log(`[AI] SDK Version: ${sdkVersion}`);
+    console.log(`[AI] Selected Model: gemini-2.5-flash`);
+    console.log(`[AI] GEMINI_API_KEY loaded: ${!!key}`);
+    
     if (key) {
       console.log(`[AI] Gemini API key detected (${key.substring(0, 6)}...${key.substring(key.length - 4)})`);
       this.ai = new GoogleGenerativeAI(key);
@@ -24,8 +29,8 @@ export class GeminiProvider implements AIProvider {
       throw new Error('MISSING_API_KEY: The GEMINI_API_KEY environment variable is not set. Please add it to your .env file or Vercel environment variables.');
     }
 
-    // Use gemini-2.0-flash — the current recommended fast model
-    const model = this.ai.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    // Use gemini-2.5-flash
+    const model = this.ai.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
     // RAG approach: fetch DB stats to provide context so it doesn't hallucinate
     let totalStudents = 0, totalCourses = 0, allocatedCount = 0, unallocatedCount = 0;
@@ -68,7 +73,7 @@ export class GeminiProvider implements AIProvider {
         throw new Error('PERMISSION_DENIED: The API key does not have permission to use this model. Check your Google Cloud project settings.');
       }
       if (status === 404 || error?.message?.includes('not found') || error?.message?.includes('404')) {
-        throw new Error('MODEL_NOT_FOUND: The AI model "gemini-2.0-flash" is not available. This may be a regional restriction.');
+        throw new Error('MODEL_NOT_FOUND: The AI model "gemini-2.5-flash" is not available. This may be a regional restriction or unsupported model.');
       }
       if (status === 429 || error?.message?.includes('RATE_LIMIT') || error?.message?.includes('429')) {
         throw new Error('RATE_LIMITED: Too many AI requests. Please wait a moment and try again.');
